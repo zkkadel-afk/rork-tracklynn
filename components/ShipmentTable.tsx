@@ -70,7 +70,7 @@ export default function ShipmentTable({ shipments }: ShipmentTableProps) {
                 <Building2 size={14} color={Colors.textSecondary} />
                 <View>
                   <Text style={styles.cellText}>
-                    {shipment.destination === 'N/A' ? 'Currently Unavailable' : shipment.destination}
+                    {shipment.destination}
                   </Text>
                   <Text style={styles.destType}>
                     ({shipment.destinationType === 'shipper' ? 'Shipper' : 'Receiver'})

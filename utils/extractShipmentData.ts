@@ -169,8 +169,11 @@ export async function processShipments(rawShipments: ShipmentData[]): Promise<Pr
       ? shipment.originZip
       : shipment.destZip;
     
-    // Use city/state format instead of zip code
-    const destination = zipToCityStateMap.get(destinationZip) || 'N/A';
+    // Use city/state format instead of zip code, fall back to zip if geocoding failed
+    let destination = zipToCityStateMap.get(destinationZip) || destinationZip;
+    if (!destination || destination.trim() === '' || destination.toUpperCase() === 'N/A') {
+      destination = destinationZip;
+    }
 
     const currentLocation = shipment.lastCallinCity || 'N/A';
     const distanceData = distanceResults[index];
