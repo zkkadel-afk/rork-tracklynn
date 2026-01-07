@@ -12,7 +12,7 @@ const ShipmentSchema = z.object({
       brokerageStatus: z.string().describe('The brokerage status (COVRD, DISPATCH, IN-TRANS, DLVD, etc.)'),
       originZip: z.string().describe('The origin/shipper zip code'),
       destZip: z.string().describe('The destination/receiver zip code'),
-      reeferTemp: z.string().optional().describe('The min temp/reefer temperature requirement'),
+      reeferTemp: z.string().optional().describe('The min temp/reefer temperature requirement - LEAVE EMPTY if cell is blank/empty'),
     })
   ),
 });
@@ -46,7 +46,7 @@ COLUMN MAPPING (headers may vary slightly):
 - "Last callin city" → Current truck location - city name, may include state (e.g., "South Amboy, NJ", "BLOOMFIELD, CT"). If empty or unclear, use "N/A"
 - "Origin zip" → Shipper zip code (e.g., "65802", "97070")
 - "Dest zip" → Receiver zip code (e.g., "08832", "06002")
-- "Min temp" OR "min temp" → Reefer temperature requirement (e.g., "34F", "-10F", "N/A", etc.) - extract if present
+- "Min temp" OR "min temp" → Reefer temperature requirement (e.g., "34F", "-10F") - ONLY extract if cell has a value. If cell is BLANK/EMPTY, leave this field empty (not "N/A" or any default value)
 
 STEP BY STEP PROCESS:
 1. Identify the header row to understand column positions
@@ -63,7 +63,7 @@ Row with BOL "919628907" should extract:
 - lastCallinCity: "South Amboy, NJ" (or the location in that row, or "N/A" if empty)
 - originZip: "65802" (or whatever zip is in that row)
 - destZip: "08832" (or whatever zip is in that row)
-- reeferTemp: "34F" (or whatever min temp is in that row, empty string if not applicable)
+- reeferTemp: "34F" (or whatever min temp is in that row, LEAVE EMPTY/BLANK if the cell is empty - do not infer or add any value)
 
 Extract ALL shipments visible in the table. Be thorough and accurate.`,
           },
