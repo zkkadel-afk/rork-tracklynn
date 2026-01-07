@@ -7,13 +7,13 @@ import { createContext } from "./trpc/create-context";
 
 const app = new Hono();
 
-// Add CORS middleware
+// Add CORS middleware - permissive for development
 app.use("*", cors({
   origin: '*',
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization', 'x-trpc-source', 'trpc-accept'],
-  exposeHeaders: ['Content-Length'],
-  maxAge: 600,
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
+  allowHeaders: ['*'],
+  exposeHeaders: ['*'],
+  maxAge: 86400,
   credentials: false,
 }));
 
