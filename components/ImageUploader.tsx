@@ -6,11 +6,9 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Platform,
-  Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { Upload, X, Scissors } from 'lucide-react-native';
+import { Upload, X } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 
 interface ImageUploaderProps {
@@ -26,67 +24,6 @@ export default function ImageUploader({
   onClear,
   isProcessing,
 }: ImageUploaderProps) {
-  const captureScreen = async () => {
-    if (images.length >= 3) {
-      Alert.alert('Maximum reached', 'You can only capture up to 3 screenshots');
-      return;
-    }
-
-    if (Platform.OS !== 'web') {
-      Alert.alert('Not available', 'Screen capture is only available on web. Use the camera or upload instead.');
-      return;
-    }
-
-    try {
-      console.log('Starting screen capture...');
-      
-      if (!navigator.mediaDevices || !(navigator.mediaDevices as any).getDisplayMedia) {
-        Alert.alert(
-          'Screen Capture Not Available',
-          'Screen capture is not supported in this browser. Please use the "Upload from files" option instead.'
-        );
-        return;
-      }
-
-      const mediaStream = await (navigator.mediaDevices as any).getDisplayMedia({
-        video: { mediaSource: 'screen' },
-      });
-
-      const video = document.createElement('video');
-      video.srcObject = mediaStream;
-      video.play();
-
-      await new Promise(resolve => {
-        video.onloadedmetadata = resolve;
-      });
-
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx?.drawImage(video, 0, 0);
-
-      mediaStream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
-
-      const base64 = canvas.toDataURL('image/png').split(',')[1];
-      const uri = canvas.toDataURL('image/png');
-
-      console.log('Screen captured successfully');
-      onImagesSelected([...images, { uri, base64 }]);
-    } catch (error: any) {
-      console.error('Screen capture error:', error);
-      if (error.name === 'NotAllowedError') {
-        Alert.alert(
-          'Screen Capture Blocked',
-          'Screen capture is blocked by your browser or this environment. Please use the "Upload from files" option to upload screenshots instead.',
-          [{ text: 'OK' }]
-        );
-      } else {
-        Alert.alert('Capture failed', 'Could not capture screen. Please try uploading an image instead.');
-      }
-    }
-  };
-
   const pickImage = async () => {
     if (images.length >= 3) {
       return;
@@ -171,30 +108,17 @@ export default function ImageUploader({
       )}
 
       {images.length === 0 && (
-        <View>
-          <TouchableOpacity style={styles.captureArea} onPress={captureScreen}>
-            <View style={styles.captureIconContainer}>
-              <Scissors size={32} color={Colors.primary} />
-            </View>
-            <Text style={styles.captureTitle}>Capture Your Screen</Text>
-            <Text style={styles.captureHint}>Click to snippet your TMS or any window</Text>
-            <View style={styles.captureButton}>
-              <Scissors size={18} color={Colors.white} />
-              <Text style={styles.captureButtonText}>Start Capture</Text>
-            </View>
-          </TouchableOpacity>
-
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
+        <TouchableOpacity style={styles.uploadArea} onPress={pickImage}>
+          <View style={styles.uploadIconContainer}>
+            <Upload size={32} color={Colors.primary} />
           </View>
-
-          <TouchableOpacity style={styles.uploadAreaSecondary} onPress={pickImage}>
-            <Upload size={20} color={Colors.textSecondary} />
-            <Text style={styles.uploadSecondaryText}>Upload from files</Text>
-          </TouchableOpacity>
-        </View>
+          <Text style={styles.uploadTitle}>Upload Screenshots</Text>
+          <Text style={styles.uploadHint}>Select up to 3 images from your files</Text>
+          <View style={styles.uploadButton}>
+            <Upload size={18} color={Colors.white} />
+            <Text style={styles.uploadButtonText}>Choose Files</Text>
+          </View>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -233,31 +157,31 @@ const styles = StyleSheet.create({
   },
   uploadArea: {
     borderWidth: 2,
-    borderColor: Colors.border,
+    borderColor: Colors.primary,
     borderStyle: 'dashed',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 32,
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.primary + '08',
   },
   uploadIconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: Colors.surfaceLight,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: Colors.primary + '15',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
   },
   uploadTitle: {
-    fontSize: 16,
-    fontWeight: '600' as const,
+    fontSize: 18,
+    fontWeight: '700' as const,
     color: Colors.text,
     marginBottom: 4,
   },
   uploadHint: {
-    fontSize: 13,
-    color: Colors.textMuted,
+    fontSize: 14,
+    color: Colors.textSecondary,
     marginBottom: 20,
   },
   uploadButton: {
@@ -265,13 +189,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     backgroundColor: Colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 10,
   },
   uploadButtonText: {
-    fontSize: 14,
-    fontWeight: '600' as const,
+    fontSize: 15,
+    fontWeight: '700' as const,
     color: Colors.white,
   },
   imagesGrid: {
@@ -331,80 +255,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-  },
-  captureArea: {
-    borderWidth: 2,
-    borderColor: Colors.primary,
-    borderRadius: 16,
-    padding: 32,
-    alignItems: 'center',
-    backgroundColor: Colors.primary + '08',
-  },
-  captureIconContainer: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: Colors.primary + '15',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  captureTitle: {
-    fontSize: 18,
-    fontWeight: '700' as const,
-    color: Colors.text,
-    marginBottom: 4,
-  },
-  captureHint: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    marginBottom: 20,
-  },
-  captureButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: Colors.primary,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 10,
-  },
-  captureButtonText: {
-    fontSize: 15,
-    fontWeight: '700' as const,
-    color: Colors.white,
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: Colors.border,
-  },
-  dividerText: {
-    marginHorizontal: 12,
-    fontSize: 13,
-    color: Colors.textMuted,
-    fontWeight: '500' as const,
-  },
-  uploadAreaSecondary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 10,
-    paddingVertical: 14,
-    backgroundColor: Colors.surface,
-  },
-  uploadSecondaryText: {
-    fontSize: 14,
-    fontWeight: '600' as const,
-    color: Colors.textSecondary,
   },
   addMoreText: {
     fontSize: 14,
