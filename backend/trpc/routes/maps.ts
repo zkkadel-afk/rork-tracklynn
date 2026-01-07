@@ -89,17 +89,17 @@ export const mapsRouter = createTRPCRouter({
       }
 
       try {
-        const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(
-          input.origin
-        )}&destinations=${encodeURIComponent(
-          input.destination
-        )}&units=imperial&mode=driving&key=${GOOGLE_MAPS_API_KEY}`;
+        const encodedOrigin = encodeURIComponent(input.origin);
+        const encodedDestination = encodeURIComponent(input.destination);
+        
+        const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodedOrigin}&destinations=${encodedDestination}&units=imperial&mode=driving&key=${GOOGLE_MAPS_API_KEY}`;
 
-        console.log(
-          `[Maps API] Fetching distance: ${input.origin} → ${input.destination}`
-        );
-        // Log masked key for debugging
-        console.log(`[Maps API] Using API key: ${GOOGLE_MAPS_API_KEY.substring(0, 5)}...${GOOGLE_MAPS_API_KEY.substring(GOOGLE_MAPS_API_KEY.length - 4)}`);
+        console.log(`[Maps API] ═══════════════════════════════════════════════`);
+        console.log(`[Maps API] Fetching distance: ${input.origin} → ${input.destination}`);
+        console.log(`[Maps API] Encoded origin: ${encodedOrigin}`);
+        console.log(`[Maps API] Encoded destination: ${encodedDestination}`);
+        console.log(`[Maps API] API key (masked): ${GOOGLE_MAPS_API_KEY.substring(0, 8)}...${GOOGLE_MAPS_API_KEY.substring(GOOGLE_MAPS_API_KEY.length - 4)}`);
+        console.log(`[Maps API] Full URL (masked): https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodedOrigin}&destinations=${encodedDestination}&units=imperial&mode=driving&key=***`);
 
         const response = await fetch(url, {
           headers: {
@@ -107,19 +107,26 @@ export const mapsRouter = createTRPCRouter({
           },
         });
         
+        console.log(`[Maps API] Response status: ${response.status} ${response.statusText}`);
+        console.log(`[Maps API] Response headers:`, Object.fromEntries(response.headers.entries()));
+        
         if (!response.ok) {
           const text = await response.text();
-          console.error(`[Maps API] HTTP error! status: ${response.status}`, text.substring(0, 200));
-          throw new Error(`Google Maps API HTTP ${response.status}`);
+          console.error(`[Maps API] ❌ HTTP ERROR:`);
+          console.error(`[Maps API] Status: ${response.status} ${response.statusText}`);
+          console.error(`[Maps API] Response body:`, text.substring(0, 500));
+          throw new Error(`Google Maps API HTTP ${response.status}: ${response.statusText}`);
         }
         
         const data = await response.json();
+        console.log(`[Maps API] Response data:`, JSON.stringify(data, null, 2));
 
         if (data.status !== "OK") {
-          console.error(
-            `[Maps API] API error: ${data.status} - ${data.error_message || 'No error message'}`
-          );
-          throw new Error(`Google Maps API error: ${data.status}`);
+          console.error(`[Maps API] ❌ API STATUS ERROR:`);
+          console.error(`[Maps API] Status: ${data.status}`);
+          console.error(`[Maps API] Error message: ${data.error_message || 'No error message provided'}`);
+          console.error(`[Maps API] Full response:`, JSON.stringify(data, null, 2));
+          throw new Error(`Google Maps API error: ${data.status} - ${data.error_message || 'No details'}`);
         }
 
         const element = data.rows[0]?.elements[0];
@@ -175,7 +182,12 @@ export const mapsRouter = createTRPCRouter({
 
         return result;
       } catch (error: any) {
-        console.error("[Maps API] Error fetching distance:", error.message);
+        console.error(`[Maps API] ❌ FETCH ERROR:`);
+        console.error(`[Maps API] Error type: ${error.constructor.name}`);
+        console.error(`[Maps API] Error message: ${error.message}`);
+        console.error(`[Maps API] Error stack:`, error.stack);
+        console.error(`[Maps API] Full error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+        console.error(`[Maps API] ═══════════════════════════════════════════════`);
         throw error;
       }
     }),
