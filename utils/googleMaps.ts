@@ -1,3 +1,5 @@
+import { trpcClient } from '@/lib/trpc';
+
 export interface DistanceMatrixResult {
   distance: number;
   duration: number;
@@ -152,116 +154,23 @@ export async function getDistanceAndDuration(
       success: false,
     };
   }
-  
-  const apiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
-  if (!apiKey) {
-    console.error('[Google Maps] EXPO_PUBLIC_GOOGLE_MAPS_API_KEY is not configured!');
-    return {
-      distance: 0,
-      duration: 0,
-      formattedDistance: 'Config Error',
-      formattedDuration: 'Config Error',
-      success: false,
-    };
-  }
 
   try {
-    const encodedOrigin = encodeURIComponent(origin);
-    const encodedDestination = encodeURIComponent(destination);
-    
-    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodedOrigin}&destinations=${encodedDestination}&units=imperial&mode=driving&key=${apiKey}`;
-
-    console.log(`[Google Maps] ═══════════════════════════════════════════════`);
     console.log(`[Google Maps] Calculating route: ${origin} → ${destination}`);
-    console.log(`[Google Maps] Encoded origin: ${encodedOrigin}`);
-    console.log(`[Google Maps] Encoded destination: ${encodedDestination}`);
-    console.log(`[Google Maps] API key (masked): ${apiKey.substring(0, 8)}...${apiKey.substring(apiKey.length - 4)}`);
-    console.log(`[Google Maps] Full URL (masked): https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodedOrigin}&destinations=${encodedDestination}&units=imperial&mode=driving&key=***`);
-
-    const response = await fetch(url, {
-      headers: {
-        'Accept': 'application/json',
-      },
+    
+    const result = await trpcClient.maps.getDistance.mutate({
+      origin,
+      destination,
     });
     
-    console.log(`[Google Maps] Response status: ${response.status} ${response.statusText}`);
-    console.log(`[Google Maps] Response headers:`, Object.fromEntries(response.headers.entries()));
+    console.log(`[Google Maps] ✓ ${result.distance} miles, ${result.duration.toFixed(1)} hours`);
     
-    if (!response.ok) {
-      const text = await response.text();
-      console.error(`[Google Maps] ❌ HTTP ERROR:`);
-      console.error(`[Google Maps] Status: ${response.status} ${response.statusText}`);
-      console.error(`[Google Maps] Response body:`, text.substring(0, 500));
-      return {
-        distance: 0,
-        duration: 0,
-        formattedDistance: 'Error',
-        formattedDuration: 'Error',
-        success: false,
-      };
-    }
-    
-    const data = await response.json();
-    console.log(`[Google Maps] Response data:`, JSON.stringify(data, null, 2));
-
-    if (data.status !== "OK") {
-      console.error(`[Google Maps] ❌ API STATUS ERROR:`);
-      console.error(`[Google Maps] Status: ${data.status}`);
-      console.error(`[Google Maps] Error message: ${data.error_message || 'No error message provided'}`);
-      console.error(`[Google Maps] Full response:`, JSON.stringify(data, null, 2));
-      return {
-        distance: 0,
-        duration: 0,
-        formattedDistance: 'Error',
-        formattedDuration: 'Error',
-        success: false,
-      };
-    }
-
-    const element = data.rows[0]?.elements[0];
-
-    if (!element || element.status !== "OK") {
-      console.log(`[Google Maps] Route not found: ${element?.status} for ${origin} -> ${destination}`);
-      
-      if (element?.status === 'NOT_FOUND' || element?.status === 'ZERO_RESULTS') {
-        return {
-          distance: 0,
-          duration: 0,
-          formattedDistance: 'N/A',
-          formattedDuration: 'N/A',
-          success: false,
-        };
-      }
-      
-      return {
-        distance: 0,
-        duration: 0,
-        formattedDistance: 'Error',
-        formattedDuration: 'Error',
-        success: false,
-      };
-    }
-
-    const distanceInMiles = Math.round(element.distance.value * 0.000621371);
-    const durationInHours = element.duration.value / 3600;
-
-    console.log(`[Google Maps] ✓ ${distanceInMiles} miles, ${durationInHours.toFixed(1)} hours`);
-
-    return {
-      distance: distanceInMiles,
-      duration: durationInHours,
-      formattedDistance: element.distance.text,
-      formattedDuration: element.duration.text,
-      success: true,
-    };
+    return result;
   } catch (error: any) {
-    console.error(`[Google Maps] ❌ FETCH ERROR:`);
-    console.error(`[Google Maps] Error type: ${error.constructor.name}`);
+    console.error(`[Google Maps] ❌ ERROR:`);
     console.error(`[Google Maps] Error message: ${error.message}`);
-    console.error(`[Google Maps] Error stack:`, error.stack);
     console.error(`[Google Maps] Route: ${origin} -> ${destination}`);
-    console.error(`[Google Maps] Full error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
-    console.error(`[Google Maps] ═══════════════════════════════════════════════`);
+    
     return {
       distance: 0,
       duration: 0,
