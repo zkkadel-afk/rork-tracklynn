@@ -165,9 +165,12 @@ export async function processShipments(rawShipments: ShipmentData[]): Promise<Pr
     const isGoingToShipper = status === 'COVRD' || status === 'DISPATCH';
     const destinationType = isGoingToShipper ? 'shipper' : 'receiver';
     
-    const destination = isGoingToShipper
+    const destinationZip = isGoingToShipper
       ? shipment.originZip
       : shipment.destZip;
+    
+    // Use city/state format instead of zip code
+    const destination = zipToCityStateMap.get(destinationZip) || destinationZip || 'N/A';
 
     const currentLocation = shipment.lastCallinCity || 'N/A';
     const distanceData = distanceResults[index];
