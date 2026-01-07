@@ -25,7 +25,7 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
   if (!apiKey) {
     console.error('[Geocoding] EXPO_PUBLIC_GOOGLE_MAPS_API_KEY is not configured!');
     return {
-      cityState: zipCode,
+      cityState: 'N/A',
       success: false,
     };
   }
@@ -55,7 +55,7 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
       console.error(`[Geocoding] Status: ${response.status} ${response.statusText}`);
       console.error(`[Geocoding] Response body:`, text.substring(0, 500));
       return {
-        cityState: zipCode,
+        cityState: 'N/A',
         success: false,
       };
     }
@@ -69,7 +69,7 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
       console.error(`[Geocoding] Error message: ${data.error_message || 'No error message provided'}`);
       console.error(`[Geocoding] No results for zip: ${zipCode}`);
       return {
-        cityState: zipCode,
+        cityState: 'N/A',
         success: false,
       };
     }
@@ -98,7 +98,7 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
 
     console.warn(`[Geocoding] Could not extract city/state from zip: ${zipCode}`);
     return {
-      cityState: zipCode,
+      cityState: 'N/A',
       success: false,
     };
   } catch (error: any) {
@@ -109,7 +109,7 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
     console.error(`[Geocoding] Zip code: ${zipCode}`);
     console.error(`[Geocoding] ═══════════════════════════════════════════════`);
     return {
-      cityState: zipCode,
+      cityState: 'N/A',
       success: false,
     };
   }

@@ -147,8 +147,8 @@ export async function processShipments(rawShipments: ShipmentData[]): Promise<Pr
       ? shipment.originZip
       : shipment.destZip;
     
-    // Convert zip to city/state or use the zip if conversion failed
-    let destination = zipToCityStateMap.get(destinationZip) || destinationZip || 'N/A';
+    // Convert zip to city/state or use N/A if conversion failed
+    let destination = zipToCityStateMap.get(destinationZip) || 'N/A';
     let currentLocation = shipment.lastCallinCity || 'N/A';
     
     // Ensure we don't send empty strings to the map API
@@ -170,7 +170,7 @@ export async function processShipments(rawShipments: ShipmentData[]): Promise<Pr
       : shipment.destZip;
     
     // Use city/state format instead of zip code
-    const destination = zipToCityStateMap.get(destinationZip) || destinationZip || 'N/A';
+    const destination = zipToCityStateMap.get(destinationZip) || 'N/A';
 
     const currentLocation = shipment.lastCallinCity || 'N/A';
     const distanceData = distanceResults[index];
