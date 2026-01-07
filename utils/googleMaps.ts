@@ -29,11 +29,15 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
   }
 
   try {
+    console.log(`[Geocoding] ═══════════════════════════════════════════════`);
     console.log(`[Geocoding] Converting zip code: ${zipCode}`);
     
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
       zipCode + ', USA'
     )}&key=${apiKey}`;
+
+    console.log(`[Geocoding] API key (masked): ${apiKey.substring(0, 8)}...${apiKey.substring(apiKey.length - 4)}`);
+    console.log(`[Geocoding] Full URL (masked): https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(zipCode + ', USA')}&key=***`);
 
     const response = await fetch(url, {
       headers: {
@@ -41,8 +45,13 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
       },
     });
     
+    console.log(`[Geocoding] Response status: ${response.status} ${response.statusText}`);
+    
     if (!response.ok) {
-      console.error(`[Geocoding] HTTP error! status: ${response.status}`);
+      const text = await response.text();
+      console.error(`[Geocoding] ❌ HTTP ERROR:`);
+      console.error(`[Geocoding] Status: ${response.status} ${response.statusText}`);
+      console.error(`[Geocoding] Response body:`, text.substring(0, 500));
       return {
         cityState: zipCode,
         success: false,
@@ -50,9 +59,13 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
     }
     
     const data = await response.json();
+    console.log(`[Geocoding] Response data:`, JSON.stringify(data, null, 2));
 
     if (data.status !== "OK" || !data.results || data.results.length === 0) {
-      console.warn(`[Geocoding] No results for zip: ${zipCode}`);
+      console.error(`[Geocoding] ❌ API STATUS ERROR:`);
+      console.error(`[Geocoding] Status: ${data.status}`);
+      console.error(`[Geocoding] Error message: ${data.error_message || 'No error message provided'}`);
+      console.error(`[Geocoding] No results for zip: ${zipCode}`);
       return {
         cityState: zipCode,
         success: false,
@@ -87,7 +100,12 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
       success: false,
     };
   } catch (error: any) {
-    console.error(`[Geocoding] Error for ${zipCode}:`, error.message);
+    console.error(`[Geocoding] ❌ FETCH ERROR:`);
+    console.error(`[Geocoding] Error type: ${error.constructor.name}`);
+    console.error(`[Geocoding] Error message: ${error.message}`);
+    console.error(`[Geocoding] Error stack:`, error.stack);
+    console.error(`[Geocoding] Zip code: ${zipCode}`);
+    console.error(`[Geocoding] ═══════════════════════════════════════════════`);
     return {
       cityState: zipCode,
       success: false,
@@ -148,13 +166,17 @@ export async function getDistanceAndDuration(
   }
 
   try {
-    console.log(`[Google Maps] Calculating route: ${origin} → ${destination}`);
+    const encodedOrigin = encodeURIComponent(origin);
+    const encodedDestination = encodeURIComponent(destination);
     
-    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(
-      origin
-    )}&destinations=${encodeURIComponent(
-      destination
-    )}&units=imperial&mode=driving&key=${apiKey}`;
+    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodedOrigin}&destinations=${encodedDestination}&units=imperial&mode=driving&key=${apiKey}`;
+
+    console.log(`[Google Maps] ═══════════════════════════════════════════════`);
+    console.log(`[Google Maps] Calculating route: ${origin} → ${destination}`);
+    console.log(`[Google Maps] Encoded origin: ${encodedOrigin}`);
+    console.log(`[Google Maps] Encoded destination: ${encodedDestination}`);
+    console.log(`[Google Maps] API key (masked): ${apiKey.substring(0, 8)}...${apiKey.substring(apiKey.length - 4)}`);
+    console.log(`[Google Maps] Full URL (masked): https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodedOrigin}&destinations=${encodedDestination}&units=imperial&mode=driving&key=***`);
 
     const response = await fetch(url, {
       headers: {
@@ -162,8 +184,14 @@ export async function getDistanceAndDuration(
       },
     });
     
+    console.log(`[Google Maps] Response status: ${response.status} ${response.statusText}`);
+    console.log(`[Google Maps] Response headers:`, Object.fromEntries(response.headers.entries()));
+    
     if (!response.ok) {
-      console.error(`[Google Maps] HTTP error! status: ${response.status}`);
+      const text = await response.text();
+      console.error(`[Google Maps] ❌ HTTP ERROR:`);
+      console.error(`[Google Maps] Status: ${response.status} ${response.statusText}`);
+      console.error(`[Google Maps] Response body:`, text.substring(0, 500));
       return {
         distance: 0,
         duration: 0,
@@ -174,9 +202,13 @@ export async function getDistanceAndDuration(
     }
     
     const data = await response.json();
+    console.log(`[Google Maps] Response data:`, JSON.stringify(data, null, 2));
 
     if (data.status !== "OK") {
-      console.error(`[Google Maps] API error: ${data.status} - ${data.error_message || 'No error message'}`);
+      console.error(`[Google Maps] ❌ API STATUS ERROR:`);
+      console.error(`[Google Maps] Status: ${data.status}`);
+      console.error(`[Google Maps] Error message: ${data.error_message || 'No error message provided'}`);
+      console.error(`[Google Maps] Full response:`, JSON.stringify(data, null, 2));
       return {
         distance: 0,
         duration: 0,
@@ -223,7 +255,13 @@ export async function getDistanceAndDuration(
       success: true,
     };
   } catch (error: any) {
-    console.error(`[Google Maps] Error for ${origin} -> ${destination}:`, error.message);
+    console.error(`[Google Maps] ❌ FETCH ERROR:`);
+    console.error(`[Google Maps] Error type: ${error.constructor.name}`);
+    console.error(`[Google Maps] Error message: ${error.message}`);
+    console.error(`[Google Maps] Error stack:`, error.stack);
+    console.error(`[Google Maps] Route: ${origin} -> ${destination}`);
+    console.error(`[Google Maps] Full error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+    console.error(`[Google Maps] ═══════════════════════════════════════════════`);
     return {
       distance: 0,
       duration: 0,
