@@ -40,7 +40,7 @@ CRITICAL INSTRUCTIONS:
 4. Read column headers carefully as they may be abbreviated
 
 COLUMN MAPPING (headers may vary slightly):
-- "BOL" → Extract as the bol/PO number (e.g., "919628907", "H0752257")
+- "BOL" → Extract as the bol/PO number (e.g., "919628907", "H0752257"). If the cell is EMPTY or contains only the customer name, use "N/A"
 - "Customer" → Full customer name (e.g., "VITAAUTX - Vital Farms", "WORLDCT - World Class Distribution Hartford")
 - "Brokerage status" OR "Brokerage" → Status value (COVRD, DISPATCH, IN-TRANS, DLVD, Accepted, etc.)
 - "Last callin city" → Current truck location - city name, may include state (e.g., "South Amboy, NJ", "BLOOMFIELD, CT"). If empty or unclear, use "N/A"
@@ -189,9 +189,15 @@ export async function processShipments(rawShipments: ShipmentData[]): Promise<Pr
        eta = 'N/A';
     }
 
+    const bol = shipment.bol && shipment.bol.trim() && shipment.bol.toUpperCase() !== 'N/A' ? shipment.bol : 'N/A';
+    const cleanedCustomer = cleanCustomerName(shipment.customer);
+    
+    // If BOL matches the customer name, treat it as N/A
+    const poNumber = bol !== 'N/A' && !bol.toLowerCase().includes(cleanedCustomer.toLowerCase()) ? bol : 'N/A';
+    
     return {
-      poNumber: shipment.bol,
-      customer: cleanCustomerName(shipment.customer),
+      poNumber,
+      customer: cleanedCustomer,
       currentLocation,
       destination,
       destinationType,

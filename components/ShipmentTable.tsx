@@ -85,7 +85,9 @@ export default function ShipmentTable({ shipments }: ShipmentTableProps) {
               </View>
               <View style={[styles.cell, styles.tempCell]}>
                 <Thermometer size={14} color={Colors.textSecondary} />
-                <Text style={styles.cellText}>{shipment.reeferTemp || 'Currently Unavailable'}</Text>
+                <Text style={styles.cellText}>
+                  {shipment.reeferTemp && shipment.reeferTemp.trim() ? shipment.reeferTemp : 'Dry'}
+                </Text>
               </View>
               <View style={[styles.cell, styles.statusCell]}>
                 <View style={[styles.statusBadge, { backgroundColor: getStatusColor(shipment.status) + '20' }]}>
