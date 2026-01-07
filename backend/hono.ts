@@ -9,13 +9,23 @@ const app = new Hono();
 
 // Add CORS middleware - permissive for development
 app.use("*", cors({
-  origin: '*',
+  origin: (origin) => origin || '*',
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
-  allowHeaders: ['*'],
-  exposeHeaders: ['*'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'x-trpc-source'],
+  exposeHeaders: ['Content-Type', 'Content-Length'],
   maxAge: 86400,
   credentials: false,
 }));
+
+// Additional OPTIONS handler for preflight requests
+app.options('*', (c) => {
+  c.status(204);
+  c.header('Access-Control-Allow-Origin', '*');
+  c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH');
+  c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, x-trpc-source');
+  c.header('Access-Control-Max-Age', '86400');
+  return c.body(null);
+});
 
 // Match the client's URL structure: /api/trpc
 // IMPORTANT: This must match what is defined in lib/trpc.ts
