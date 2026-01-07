@@ -62,12 +62,16 @@ export default function ShipmentTable({ shipments }: ShipmentTableProps) {
               </View>
               <View style={[styles.cell, styles.locationCell]}>
                 <MapPin size={14} color={Colors.textSecondary} />
-                <Text style={styles.cellText}>{shipment.currentLocation}</Text>
+                <Text style={styles.cellText}>
+                  {shipment.currentLocation === 'N/A' ? 'Currently Unavailable' : shipment.currentLocation}
+                </Text>
               </View>
               <View style={[styles.cell, styles.destCell]}>
                 <Building2 size={14} color={Colors.textSecondary} />
                 <View>
-                  <Text style={styles.cellText}>{shipment.destination}</Text>
+                  <Text style={styles.cellText}>
+                    {shipment.destination === 'N/A' ? 'Currently Unavailable' : shipment.destination}
+                  </Text>
                   <Text style={styles.destType}>
                     ({shipment.destinationType === 'shipper' ? 'Shipper' : 'Receiver'})
                   </Text>
@@ -75,11 +79,13 @@ export default function ShipmentTable({ shipments }: ShipmentTableProps) {
               </View>
               <View style={[styles.cell, styles.etaCell]}>
                 <Clock size={14} color={Colors.accent} />
-                <Text style={styles.etaText}>{shipment.eta}</Text>
+                <Text style={styles.etaText}>
+                  {shipment.eta === 'N/A' ? 'Currently Unavailable' : shipment.eta}
+                </Text>
               </View>
               <View style={[styles.cell, styles.tempCell]}>
                 <Thermometer size={14} color={Colors.textSecondary} />
-                <Text style={styles.cellText}>{shipment.reeferTemp || 'N/A'}</Text>
+                <Text style={styles.cellText}>{shipment.reeferTemp || 'Currently Unavailable'}</Text>
               </View>
               <View style={[styles.cell, styles.statusCell]}>
                 <View style={[styles.statusBadge, { backgroundColor: getStatusColor(shipment.status) + '20' }]}>

@@ -37,9 +37,9 @@ export default function EmailDraft({ customerGroups }: EmailDraftProps) {
 
     group.shipments.forEach((shipment) => {
       const po = shipment.poNumber.padEnd(poWidth);
-      const location = shipment.currentLocation.padEnd(locationWidth);
-      const eta = shipment.eta.padEnd(etaWidth);
-      const temp = (shipment.reeferTemp || 'N/A').padEnd(tempWidth);
+      const location = (shipment.currentLocation === 'N/A' ? 'Currently Unavailable' : shipment.currentLocation).padEnd(locationWidth);
+      const eta = (shipment.eta === 'N/A' ? 'Currently Unavailable' : shipment.eta).padEnd(etaWidth);
+      const temp = (shipment.reeferTemp || 'Dry').padEnd(tempWidth);
       body += `${po} | ${location} | ${eta} | ${temp}\n`;
     });
 
