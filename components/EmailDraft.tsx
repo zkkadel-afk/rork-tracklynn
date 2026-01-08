@@ -26,37 +26,22 @@ export default function EmailDraft({ customerGroups }: EmailDraftProps) {
   }
 
   const generateEmailBody = (group: CustomerGroup) => {
-    let body = `Good afternoon,<br><br>Please see below for today's shipment updates:<br><br>`;
+    let body = `Good afternoon,\n\nPlease see below for today's shipment updates:\n\n`;
 
-    body += `<table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;">`;
-    body += `<thead>`;
-    body += `<tr style="background-color: #f0f0f0;">`;
-    body += `<th style="border: 1px solid #ddd; padding: 10px; text-align: left;">PO #</th>`;
-    body += `<th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Current Location</th>`;
-    body += `<th style="border: 1px solid #ddd; padding: 10px; text-align: left;">ETA</th>`;
-    body += `<th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Reefer Temp</th>`;
-    body += `</tr>`;
-    body += `</thead>`;
-    body += `<tbody>`;
-
-    group.shipments.forEach((shipment) => {
+    group.shipments.forEach((shipment, index) => {
       const po = shipment.poNumber;
       const location = shipment.currentLocation === 'N/A' ? 'Currently Unavailable' : shipment.currentLocation;
       const eta = shipment.eta === 'N/A' ? 'Currently Unavailable' : shipment.eta;
       const temp = (shipment.reeferTemp && shipment.reeferTemp.trim() ? shipment.reeferTemp : 'Dry');
       
-      body += `<tr>`;
-      body += `<td style="border: 1px solid #ddd; padding: 10px;">${po}</td>`;
-      body += `<td style="border: 1px solid #ddd; padding: 10px;">${location}</td>`;
-      body += `<td style="border: 1px solid #ddd; padding: 10px;">${eta}</td>`;
-      body += `<td style="border: 1px solid #ddd; padding: 10px;">${temp}</td>`;
-      body += `</tr>`;
+      body += `Load ${index + 1}:\n`;
+      body += `  • PO #: ${po}\n`;
+      body += `  • Current Location: ${location}\n`;
+      body += `  • ETA: ${eta}\n`;
+      body += `  • Reefer Temp: ${temp}\n\n`;
     });
 
-    body += `</tbody>`;
-    body += `</table>`;
-
-    body += `<br><br>Please let me know if you have any questions or need additional information.<br><br>`;
+    body += `Please let me know if you have any questions or need additional information.\n\n`;
     body += `Best regards`;
 
     return body;
