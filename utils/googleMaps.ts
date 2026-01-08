@@ -79,11 +79,20 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
     let state = '';
 
     for (const component of result.address_components) {
-      if (component.types.includes('locality')) {
-        city = component.long_name;
-      }
       if (component.types.includes('administrative_area_level_1')) {
         state = component.short_name;
+      }
+      if (!city && component.types.includes('locality')) {
+        city = component.long_name;
+      }
+      if (!city && component.types.includes('postal_town')) {
+        city = component.long_name;
+      }
+      if (!city && component.types.includes('sublocality')) {
+        city = component.long_name;
+      }
+      if (!city && component.types.includes('administrative_area_level_3')) {
+        city = component.long_name;
       }
     }
 
