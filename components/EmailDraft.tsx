@@ -25,37 +25,25 @@ export default function EmailDraft({ customerGroups }: EmailDraftProps) {
   }
 
   const generateEmailBody = (group: CustomerGroup) => {
-    let body = `Good afternoon,<br><br>Please see below for today's shipment updates:<br><br>`;
+    let body = `Good afternoon,\n\nPlease see below for today's shipment updates:\n\n`;
 
-    body += `<table style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 14px;">`;
-    body += `<thead>`;
-    body += `<tr style="background-color: #f2f2f2;">`;
-    body += `<th style="border: 1px solid #000; padding: 10px; text-align: left; font-weight: bold;">PO #</th>`;
-    body += `<th style="border: 1px solid #000; padding: 10px; text-align: left; font-weight: bold;">Current Location</th>`;
-    body += `<th style="border: 1px solid #000; padding: 10px; text-align: left; font-weight: bold;">Reefer Temp</th>`;
-    body += `<th style="border: 1px solid #000; padding: 10px; text-align: left; font-weight: bold;">ETA</th>`;
-    body += `</tr>`;
-    body += `</thead>`;
-    body += `<tbody>`;
+    const poWidth = 15;
+    const locationWidth = 30;
+    const etaWidth = 30;
+    const tempWidth = 12;
 
-    group.shipments.forEach((shipment, index) => {
-      const bgColor = index % 2 === 0 ? '#ffffff' : '#f9f9f9';
-      const po = shipment.poNumber;
-      const location = shipment.currentLocation === 'N/A' ? 'Currently Unavailable' : shipment.currentLocation;
-      const temp = shipment.reeferTemp && shipment.reeferTemp.trim() ? shipment.reeferTemp : 'Dry';
-      const eta = shipment.eta === 'N/A' ? 'Currently Unavailable' : shipment.eta;
-      
-      body += `<tr style="background-color: ${bgColor};">`;
-      body += `<td style="border: 1px solid #000; padding: 10px;">${po}</td>`;
-      body += `<td style="border: 1px solid #000; padding: 10px;">${location}</td>`;
-      body += `<td style="border: 1px solid #000; padding: 10px;">${temp}</td>`;
-      body += `<td style="border: 1px solid #000; padding: 10px;">${eta}</td>`;
-      body += `</tr>`;
+    body += `${'PO #'.padEnd(poWidth)} | ${'Current Location'.padEnd(locationWidth)} | ${'ETA'.padEnd(etaWidth)} | ${'Reefer Temp'.padEnd(tempWidth)}\n`;
+    body += `${'-'.repeat(poWidth)}-+-${'-'.repeat(locationWidth)}-+-${'-'.repeat(etaWidth)}-+-${'-'.repeat(tempWidth)}\n`;
+
+    group.shipments.forEach((shipment) => {
+      const po = shipment.poNumber.padEnd(poWidth);
+      const location = (shipment.currentLocation === 'N/A' ? 'Currently Unavailable' : shipment.currentLocation).padEnd(locationWidth);
+      const eta = (shipment.eta === 'N/A' ? 'Currently Unavailable' : shipment.eta).padEnd(etaWidth);
+      const temp = (shipment.reeferTemp && shipment.reeferTemp.trim() ? shipment.reeferTemp : 'Dry').padEnd(tempWidth);
+      body += `${po} | ${location} | ${eta} | ${temp}\n`;
     });
 
-    body += `</tbody>`;
-    body += `</table>`;
-    body += `<br>Please let me know if you have any questions or need additional information.<br><br>`;
+    body += `\nPlease let me know if you have any questions or need additional information.\n\n`;
     body += `Best regards`;
 
     return body;
