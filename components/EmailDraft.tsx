@@ -6,9 +6,10 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  Share,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Mail, Copy, Check, Edit3 } from 'lucide-react-native';
+import { Mail, Copy, Check, Edit3, Share2 } from 'lucide-react-native';
 import * as Clipboard from 'expo-clipboard';
 import Colors from '@/constants/colors';
 import { CustomerGroup } from '@/types/shipment';
@@ -64,6 +65,22 @@ export default function EmailDraft({ customerGroups }: EmailDraftProps) {
 
   const updateRecipientEmail = (customer: string, email: string) => {
     setRecipientEmails(prev => ({ ...prev, [customer]: email }));
+  };
+
+  const shareEmail = async (group: CustomerGroup, emailBody: string) => {
+    console.log('Sharing email...');
+    try {
+      const subject = getSubjectLine(group.customer);
+      const recipient = recipientEmails[group.customer] || '';
+      const message = recipient ? `To: ${recipient}\n\nSubject: ${subject}\n\n${emailBody}` : `Subject: ${subject}\n\n${emailBody}`;
+      
+      await Share.share({
+        message,
+        title: subject,
+      });
+    } catch (error) {
+      console.error('Error sharing email:', error);
+    }
   };
 
   return (
@@ -122,30 +139,40 @@ export default function EmailDraft({ customerGroups }: EmailDraftProps) {
                 </ScrollView>
               </View>
 
-              {isCopied ? (
+              <View style={styles.actionsRow}>
                 <TouchableOpacity
-                  style={styles.copyButtonSuccess}
-                  onPress={() => copyToClipboard(index, emailBody)}
+                  style={styles.shareButton}
+                  onPress={() => shareEmail(group, emailBody)}
                 >
-                  <Check size={20} color={Colors.white} strokeWidth={2.5} />
-                  <Text style={styles.copyButtonTextSuccess}>Copied!</Text>
+                  <Share2 size={20} color={Colors.text} strokeWidth={2.5} />
+                  <Text style={styles.shareButtonText}>Share</Text>
                 </TouchableOpacity>
-              ) : (
-                <LinearGradient
-                  colors={[Colors.primary, Colors.secondary]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.copyButton}
-                >
+
+                {isCopied ? (
                   <TouchableOpacity
-                    style={styles.copyButtonInner}
+                    style={styles.copyButtonSuccess}
                     onPress={() => copyToClipboard(index, emailBody)}
                   >
-                    <Copy size={20} color={Colors.black} strokeWidth={2.5} />
-                    <Text style={styles.copyButtonText}>Copy to Clipboard</Text>
+                    <Check size={20} color={Colors.white} strokeWidth={2.5} />
+                    <Text style={styles.copyButtonTextSuccess}>Copied!</Text>
                   </TouchableOpacity>
-                </LinearGradient>
-              )}
+                ) : (
+                  <LinearGradient
+                    colors={[Colors.primary, Colors.secondary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.copyButton}
+                  >
+                    <TouchableOpacity
+                      style={styles.copyButtonInner}
+                      onPress={() => copyToClipboard(index, emailBody)}
+                    >
+                      <Copy size={20} color={Colors.black} strokeWidth={2.5} />
+                      <Text style={styles.copyButtonText}>Copy</Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
+                )}
+              </View>
             </View>
           </View>
         );
@@ -255,9 +282,31 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontWeight: '500' as const,
   },
-  copyButton: {
-    borderRadius: 14,
+  actionsRow: {
+    flexDirection: 'row',
+    gap: 12,
     marginTop: 8,
+  },
+  shareButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 14,
+    backgroundColor: Colors.surfaceElevated,
+    borderWidth: 2,
+    borderColor: Colors.cardBorder,
+  },
+  shareButtonText: {
+    fontSize: 16,
+    fontWeight: '800' as const,
+    color: Colors.text,
+  },
+  copyButton: {
+    flex: 1,
+    borderRadius: 14,
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4,
@@ -272,6 +321,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   copyButtonSuccess: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -279,7 +329,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.success,
     paddingVertical: 16,
     borderRadius: 14,
-    marginTop: 8,
   },
   copyButtonText: {
     fontSize: 16,
