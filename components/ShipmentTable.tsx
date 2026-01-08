@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Truck, MapPin, Clock, Building2, Thermometer } from 'lucide-react-native';
+import { Truck, MapPin, Clock, Building2, Thermometer, User } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { ProcessedShipment } from '@/types/shipment';
 
@@ -42,6 +42,7 @@ export default function ShipmentTable({ shipments }: ShipmentTableProps) {
         <View style={styles.table}>
           <View style={styles.tableHeader}>
             <Text style={[styles.headerCell, styles.poCell]}>PO #</Text>
+            <Text style={[styles.headerCell, styles.customerCell]}>Customer</Text>
             <Text style={[styles.headerCell, styles.locationCell]}>Current Location</Text>
             <Text style={[styles.headerCell, styles.destCell]}>Destination</Text>
             <Text style={[styles.headerCell, styles.etaCell]}>ETA</Text>
@@ -59,6 +60,10 @@ export default function ShipmentTable({ shipments }: ShipmentTableProps) {
             >
               <View style={[styles.cell, styles.poCell]}>
                 <Text style={styles.poText}>{shipment.poNumber}</Text>
+              </View>
+              <View style={[styles.cell, styles.customerCell]}>
+                <User size={14} color={Colors.textSecondary} />
+                <Text style={styles.cellText}>{shipment.customer}</Text>
               </View>
               <View style={[styles.cell, styles.locationCell]}>
                 <MapPin size={14} color={Colors.textSecondary} />
@@ -138,7 +143,7 @@ const styles = StyleSheet.create({
     color: Colors.primary,
   },
   table: {
-    minWidth: 820,
+    minWidth: 960,
   },
   tableHeader: {
     flexDirection: 'row',
@@ -167,6 +172,9 @@ const styles = StyleSheet.create({
   },
   poCell: {
     width: 100,
+  },
+  customerCell: {
+    width: 140,
   },
   locationCell: {
     width: 150,
