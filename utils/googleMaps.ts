@@ -1,5 +1,4 @@
 import { trpcClient } from '@/lib/trpc';
-import { fetch } from 'undici';
 
 export interface DistanceMatrixResult {
   distance: number;
@@ -166,10 +165,10 @@ export async function getDistanceAndDuration(
   try {
     console.log(`[Google Maps] Calculating route: ${origin} → ${destination}`);
     
-    const result = await trpcClient.maps.getDistance.mutate({
+    const result = await (trpcClient as any).maps.getDistance.mutate({
       origin,
       destination,
-    });
+    }) as DistanceMatrixResult;
     
     console.log(`[Google Maps] ✓ ${result.distance} miles, ${result.duration.toFixed(1)} hours`);
     
