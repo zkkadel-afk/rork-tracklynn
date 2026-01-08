@@ -28,12 +28,21 @@ export default function HomeScreen() {
   const [shipments, setShipments] = useState<ProcessedShipment[]>([]);
   const [customerGroups, setCustomerGroups] = useState<CustomerGroup[]>([]);
   const [editingShipment, setEditingShipment] = useState<ProcessedShipment | null>(null);
+  const [progressMessage, setProgressMessage] = useState<string>('');
+  const [showSuccess, setShowSuccess] = useState<boolean>(false);
 
   const extractMutation = useMutation({
     mutationFn: async (base64Images: string[]) => {
       console.log('Starting extraction mutation...');
+      
+      setProgressMessage(`Analyzing image${base64Images.length > 1 ? 's' : ''}...`);
       const allRawData = await Promise.all(
-        base64Images.map(base64 => extractShipmentData(base64))
+        base64Images.map((base64, index) => {
+          if (base64Images.length > 1) {
+            setProgressMessage(`Analyzing image ${index + 1}/${base64Images.length}...`);
+          }
+          return extractShipmentData(base64);
+        })
       );
       const rawData = allRawData.flat();
       
@@ -50,17 +59,28 @@ export default function HomeScreen() {
       });
       console.log(`Deduplicated: ${rawData.length} -> ${uniqueRawData.length} shipments`);
       
+      setProgressMessage('Calculating distances...');
       const processed = await processShipments(uniqueRawData);
+      
+      setProgressMessage('Generating draft...');
       const grouped = groupByCustomer(processed);
       return { processed, grouped };
     },
     onSuccess: (data) => {
       console.log('Extraction successful:', data.processed.length, 'shipments');
+      setProgressMessage('Complete!');
       setShipments(data.processed);
       setCustomerGroups(data.grouped);
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        setProgressMessage('');
+      }, 2500);
     },
     onError: (error) => {
       console.error('Extraction failed:', error);
+      setProgressMessage('');
+      setShowSuccess(false);
       Alert.alert(
         'Extraction Failed',
         'Could not extract data from the screenshot. Please ensure the image contains clear shipment data with the expected column headers.'
@@ -155,6 +175,8 @@ export default function HomeScreen() {
                 onClear={handleClear}
                 isProcessing={extractMutation.isPending}
                 onStartExtraction={handleStartExtraction}
+                progressMessage={progressMessage}
+                showSuccess={showSuccess}
               />
             </View>
 

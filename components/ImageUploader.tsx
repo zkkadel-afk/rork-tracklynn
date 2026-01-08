@@ -19,6 +19,8 @@ interface ImageUploaderProps {
   onClear: () => void;
   isProcessing: boolean;
   onStartExtraction: () => void;
+  progressMessage: string;
+  showSuccess: boolean;
 }
 
 export default function ImageUploader({
@@ -27,6 +29,8 @@ export default function ImageUploader({
   onClear,
   isProcessing,
   onStartExtraction,
+  progressMessage,
+  showSuccess,
 }: ImageUploaderProps) {
   const pickImage = async () => {
     if (images.length >= 3) {
@@ -61,8 +65,9 @@ export default function ImageUploader({
     onImagesSelected(newImages);
   };
 
-function LoadingTruck() {
+function LoadingTruck({ progressMessage }: { progressMessage: string }) {
   const spinValue = useRef(new Animated.Value(0)).current;
+  const pulseValue = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     const spinAnimation = Animated.loop(
@@ -73,10 +78,32 @@ function LoadingTruck() {
         useNativeDriver: true,
       })
     );
+    
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseValue, {
+          toValue: 1.1,
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseValue, {
+          toValue: 1,
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    
     spinAnimation.start();
+    pulseAnimation.start();
 
-    return () => spinAnimation.stop();
-  }, [spinValue]);
+    return () => {
+      spinAnimation.stop();
+      pulseAnimation.stop();
+    };
+  }, [spinValue, pulseValue]);
 
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
@@ -86,7 +113,7 @@ function LoadingTruck() {
   return (
     <View style={styles.processingOverlay}>
       <View style={styles.truckContainer}>
-        <Animated.View style={{ transform: [{ rotate: spin }] }}>
+        <Animated.View style={{ transform: [{ rotate: spin }, { scale: pulseValue }] }}>
           <LinearGradient
             colors={[Colors.primary, Colors.secondary]}
             start={{ x: 0, y: 0 }}
@@ -98,7 +125,64 @@ function LoadingTruck() {
         </Animated.View>
       </View>
       <Text style={styles.processingText}>Working On Your Updates</Text>
-      <Text style={styles.processingSubtext}>This may take a moment...</Text>
+      <Text style={styles.progressMessage}>{progressMessage}</Text>
+    </View>
+  );
+}
+
+function SuccessAnimation() {
+  const scaleValue = useRef(new Animated.Value(0)).current;
+  const opacityValue = useRef(new Animated.Value(0)).current;
+  const checkScale = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.sequence([
+      Animated.parallel([
+        Animated.spring(scaleValue, {
+          toValue: 1,
+          tension: 50,
+          friction: 5,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityValue, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.spring(checkScale, {
+        toValue: 1,
+        tension: 80,
+        friction: 4,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [scaleValue, opacityValue, checkScale]);
+
+  return (
+    <View style={styles.processingOverlay}>
+      <Animated.View
+        style={[
+          styles.successContainer,
+          {
+            transform: [{ scale: scaleValue }],
+            opacity: opacityValue,
+          },
+        ]}
+      >
+        <LinearGradient
+          colors={[Colors.primary, Colors.secondary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.successGradient}
+        >
+          <Animated.View style={{ transform: [{ scale: checkScale }] }}>
+            <Text style={styles.checkmark}>✓</Text>
+          </Animated.View>
+        </LinearGradient>
+      </Animated.View>
+      <Text style={styles.successText}>Extraction Complete!</Text>
+      <Text style={styles.successSubtext}>Your data is ready</Text>
     </View>
   );
 }
@@ -159,7 +243,8 @@ function LoadingTruck() {
         </LinearGradient>
       )}
 
-      {isProcessing && <LoadingTruck />}
+      {isProcessing && !showSuccess && <LoadingTruck progressMessage={progressMessage} />}
+      {showSuccess && <SuccessAnimation />}
 
       {images.length === 0 && (
         <TouchableOpacity style={styles.uploadArea} onPress={pickImage}>
@@ -372,10 +457,43 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontWeight: '700' as const,
   },
-  processingSubtext: {
+  progressMessage: {
+    marginTop: 8,
+    fontSize: 15,
+    color: Colors.secondary,
+    fontWeight: '700' as const,
+  },
+  successContainer: {
+    marginBottom: 8,
+  },
+  successGradient: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.8,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+  checkmark: {
+    fontSize: 64,
+    fontWeight: '900' as const,
+    color: Colors.black,
+  },
+  successText: {
+    marginTop: 20,
+    fontSize: 22,
+    color: Colors.text,
+    fontWeight: '800' as const,
+  },
+  successSubtext: {
     marginTop: 6,
-    fontSize: 13,
-    color: Colors.textSecondary,
+    fontSize: 14,
+    color: Colors.secondary,
+    fontWeight: '600' as const,
   },
   startButton: {
     marginTop: 20,
