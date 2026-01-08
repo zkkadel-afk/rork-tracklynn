@@ -107,8 +107,8 @@ export default function HomeScreen() {
                 <Truck size={24} color={Colors.white} />
               </View>
               <View>
-                <Text style={styles.title}>LoadTrack</Text>
-                <Text style={styles.subtitle}>Shipment Update Generator</Text>
+                <Text style={styles.title}>Tracklynn</Text>
+                <Text style={styles.subtitle}>Automatic Customer Updates</Text>
               </View>
             </View>
             <View style={styles.badge}>
