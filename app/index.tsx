@@ -37,12 +37,8 @@ export default function HomeScreen() {
     mutationFn: async (base64Images: string[]) => {
       console.log('Starting extraction mutation...');
       
-      setProgressMessage(`Analyzing image${base64Images.length > 1 ? 's' : ''}...`);
       const allRawData = await Promise.all(
-        base64Images.map((base64, index) => {
-          if (base64Images.length > 1) {
-            setProgressMessage(`Analyzing image ${index + 1}/${base64Images.length}...`);
-          }
+        base64Images.map((base64) => {
           return extractShipmentData(base64);
         })
       );
@@ -61,12 +57,13 @@ export default function HomeScreen() {
       });
       console.log(`Deduplicated: ${rawData.length} -> ${uniqueRawData.length} shipments`);
       
-      setProgressMessage('Calculating distances...');
       const processed = await processShipments(uniqueRawData);
-      
-      setProgressMessage('Generating draft...');
       const grouped = groupByCustomer(processed);
       return { processed, grouped };
+    },
+    onMutate: () => {
+      setProgressMessage('Processing...');
+      setShowSuccess(false);
     },
     onSuccess: (data) => {
       console.log('Extraction successful:', data.processed.length, 'shipments');
