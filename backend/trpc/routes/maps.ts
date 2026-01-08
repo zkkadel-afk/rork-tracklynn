@@ -1,6 +1,7 @@
 import * as z from "zod";
 import { createTRPCRouter, publicProcedure } from "../create-context";
 import { Surreal } from "surrealdb";
+import { fetch } from "undici";
 
 const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -104,6 +105,7 @@ export const mapsRouter = createTRPCRouter({
         const response = await fetch(url, {
           headers: {
             'Accept': 'application/json',
+            'User-Agent': 'Tracklynn/1.0',
           },
         });
         
@@ -118,7 +120,7 @@ export const mapsRouter = createTRPCRouter({
           throw new Error(`Google Maps API HTTP ${response.status}: ${response.statusText}`);
         }
         
-        const data = await response.json();
+        const data = await response.json() as any;
         console.log(`[Maps API] Response data:`, JSON.stringify(data, null, 2));
 
         if (data.status !== "OK") {

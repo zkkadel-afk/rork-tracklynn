@@ -1,4 +1,5 @@
 import { trpcClient } from '@/lib/trpc';
+import { fetch } from 'undici';
 
 export interface DistanceMatrixResult {
   distance: number;
@@ -44,6 +45,7 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',
+        'User-Agent': 'Tracklynn/1.0',
       },
     });
     
@@ -60,7 +62,7 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
       };
     }
     
-    const data = await response.json();
+    const data = await response.json() as any;
     console.log(`[Geocoding] Response data:`, JSON.stringify(data, null, 2));
 
     if (data.status !== "OK" || !data.results || data.results.length === 0) {
