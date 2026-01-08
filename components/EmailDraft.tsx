@@ -145,7 +145,7 @@ export default function EmailDraft({ customerGroups }: EmailDraftProps) {
                   onPress={() => shareEmail(group, emailBody)}
                 >
                   <Share2 size={20} color={Colors.text} strokeWidth={2.5} />
-                  <Text style={styles.shareButtonText}>Share</Text>
+                  <Text style={styles.shareButtonText}>Outlook Mail</Text>
                 </TouchableOpacity>
 
                 {isCopied ? (
