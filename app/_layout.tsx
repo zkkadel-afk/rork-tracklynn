@@ -1,16 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 
 import Colors from "@/constants/colors";
 import { trpc, trpcClient } from "@/lib/trpc";
 
-SplashScreen.preventAutoHideAsync();
-
-const queryClient = new QueryClient();
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function RootLayoutNav() {
   return (
@@ -21,8 +19,24 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 1,
+        staleTime: 5 * 60 * 1000,
+      },
+    },
+  }));
+
   useEffect(() => {
-    SplashScreen.hideAsync();
+    const prepare = async () => {
+      try {
+        await SplashScreen.hideAsync();
+      } catch (e) {
+        console.warn('Splash screen hide error:', e);
+      }
+    };
+    prepare();
   }, []);
 
   return (
