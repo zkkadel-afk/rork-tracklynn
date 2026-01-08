@@ -16,6 +16,7 @@ interface ImageUploaderProps {
   onImagesSelected: (images: { uri: string; base64: string }[]) => void;
   onClear: () => void;
   isProcessing: boolean;
+  onStartExtraction: () => void;
 }
 
 export default function ImageUploader({
@@ -23,6 +24,7 @@ export default function ImageUploader({
   onImagesSelected,
   onClear,
   isProcessing,
+  onStartExtraction,
 }: ImageUploaderProps) {
   const pickImage = async () => {
     if (images.length >= 3) {
@@ -98,6 +100,12 @@ export default function ImageUploader({
             </TouchableOpacity>
           )}
         </View>
+      )}
+
+      {images.length > 0 && !isProcessing && (
+        <TouchableOpacity style={styles.startButton} onPress={onStartExtraction}>
+          <Text style={styles.startButtonText}>Start</Text>
+        </TouchableOpacity>
       )}
 
       {isProcessing && (
@@ -276,5 +284,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.text,
     fontWeight: '500' as const,
+  },
+  startButton: {
+    marginTop: 16,
+    backgroundColor: Colors.primary,
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  startButtonText: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: Colors.white,
   },
 });

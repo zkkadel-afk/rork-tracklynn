@@ -66,12 +66,16 @@ export default function HomeScreen() {
   });
 
   const handleImagesSelected = (newImages: { uri: string; base64: string }[]) => {
-    console.log('Images selected, starting extraction...');
+    console.log('Images selected');
     setImages(newImages);
     setShipments([]);
     setCustomerGroups([]);
-    if (newImages.length > 0) {
-      extractMutation.mutate(newImages.map(img => img.base64));
+  };
+
+  const handleStartExtraction = () => {
+    if (images.length > 0) {
+      console.log('Starting extraction...');
+      extractMutation.mutate(images.map(img => img.base64));
     }
   };
 
@@ -119,6 +123,7 @@ export default function HomeScreen() {
               onImagesSelected={handleImagesSelected}
               onClear={handleClear}
               isProcessing={extractMutation.isPending}
+              onStartExtraction={handleStartExtraction}
             />
           </View>
 
