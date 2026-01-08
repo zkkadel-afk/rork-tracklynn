@@ -15,6 +15,7 @@ import Colors from '@/constants/colors';
 import ImageUploader from '@/components/ImageUploader';
 import ShipmentTable from '@/components/ShipmentTable';
 import EmailDraft from '@/components/EmailDraft';
+import EditShipmentModal from '@/components/EditShipmentModal';
 import {
   extractShipmentData,
   processShipments,
@@ -26,6 +27,7 @@ export default function HomeScreen() {
   const [images, setImages] = useState<{ uri: string; base64: string }[]>([]);
   const [shipments, setShipments] = useState<ProcessedShipment[]>([]);
   const [customerGroups, setCustomerGroups] = useState<CustomerGroup[]>([]);
+  const [editingShipment, setEditingShipment] = useState<ProcessedShipment | null>(null);
 
   const extractMutation = useMutation({
     mutationFn: async (base64Images: string[]) => {
@@ -94,6 +96,22 @@ export default function HomeScreen() {
     }
   };
 
+  const handleEditShipment = (shipment: ProcessedShipment) => {
+    console.log('Editing shipment:', shipment.poNumber);
+    setEditingShipment(shipment);
+  };
+
+  const handleSaveShipment = (updatedShipment: ProcessedShipment) => {
+    console.log('Saving shipment:', updatedShipment.poNumber);
+    const updatedShipments = shipments.map(s => 
+      s.poNumber === updatedShipment.poNumber ? updatedShipment : s
+    );
+    setShipments(updatedShipments);
+    const updatedGroups = groupByCustomer(updatedShipments);
+    setCustomerGroups(updatedGroups);
+    setEditingShipment(null);
+  };
+
   return (
     <View style={styles.wrapper}>
       <ExpoLinearGradient
@@ -153,7 +171,10 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                 </View>
 
-                <ShipmentTable shipments={shipments} />
+                <ShipmentTable 
+                  shipments={shipments}
+                  onEditShipment={handleEditShipment}
+                />
                 <EmailDraft customerGroups={customerGroups} />
               </>
             )}
@@ -249,6 +270,13 @@ export default function HomeScreen() {
           </ScrollView>
         </SafeAreaView>
       </ExpoLinearGradient>
+
+      <EditShipmentModal
+        visible={editingShipment !== null}
+        shipment={editingShipment}
+        onClose={() => setEditingShipment(null)}
+        onSave={handleSaveShipment}
+      />
     </View>
   );
 }

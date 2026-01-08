@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Truck, MapPin, Clock, Building2, Thermometer, User } from 'lucide-react-native';
 import Colors from '@/constants/colors';
@@ -7,9 +7,10 @@ import { ProcessedShipment } from '@/types/shipment';
 
 interface ShipmentTableProps {
   shipments: ProcessedShipment[];
+  onEditShipment?: (shipment: ProcessedShipment) => void;
 }
 
-export default function ShipmentTable({ shipments }: ShipmentTableProps) {
+export default function ShipmentTable({ shipments, onEditShipment }: ShipmentTableProps) {
   if (shipments.length === 0) {
     return null;
   }
@@ -64,12 +65,14 @@ export default function ShipmentTable({ shipments }: ShipmentTableProps) {
           </View>
 
           {shipments.map((shipment, index) => (
-            <View
+            <TouchableOpacity
               key={`${shipment.poNumber}-${index}`}
               style={[
                 styles.tableRow,
                 { backgroundColor: index % 2 === 0 ? Colors.tableRowEven : Colors.tableRowOdd },
               ]}
+              onPress={() => onEditShipment?.(shipment)}
+              activeOpacity={0.7}
             >
               <View style={[styles.cell, styles.poCell]}>
                 <Text style={styles.poText}>{shipment.poNumber}</Text>
@@ -115,7 +118,7 @@ export default function ShipmentTable({ shipments }: ShipmentTableProps) {
                   </Text>
                 </View>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       </ScrollView>
