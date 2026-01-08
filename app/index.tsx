@@ -6,10 +6,12 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
+import * as Haptics from 'expo-haptics';
 import { Truck, RefreshCw, Sparkles } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import ImageUploader from '@/components/ImageUploader';
@@ -103,6 +105,7 @@ export default function HomeScreen() {
   };
 
   const handleClear = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     console.log('Clearing all data...');
     setImages([]);
     setShipments([]);
@@ -111,8 +114,16 @@ export default function HomeScreen() {
 
   const handleReprocess = () => {
     if (images.length > 0) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       console.log('Reprocessing images...');
       extractMutation.mutate(images.map(img => img.base64));
+    }
+  };
+
+  const handleRefresh = () => {
+    if (images.length > 0 && !extractMutation.isPending) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      handleReprocess();
     }
   };
 
@@ -143,6 +154,16 @@ export default function HomeScreen() {
             style={styles.scrollView}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              shipments.length > 0 ? (
+                <RefreshControl
+                  refreshing={extractMutation.isPending}
+                  onRefresh={handleRefresh}
+                  tintColor={Colors.primary}
+                  colors={[Colors.primary, Colors.secondary]}
+                />
+              ) : undefined
+            }
           >
             <View style={styles.header}>
               <View style={styles.logoContainer}>

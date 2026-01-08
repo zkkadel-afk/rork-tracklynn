@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,17 @@ import {
   Image,
   Animated,
   Easing,
+  Modal,
+  Dimensions,
+  FlatList,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
-import { Upload, X, Truck } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
+import { Upload, X, Truck, Eye } from 'lucide-react-native';
 import Colors from '@/constants/colors';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface ImageUploaderProps {
   images: { uri: string; base64: string }[];
@@ -32,11 +38,15 @@ export default function ImageUploader({
   progressMessage,
   showSuccess,
 }: ImageUploaderProps) {
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState(0);
+
   const pickImage = async () => {
     if (images.length >= 3) {
       return;
     }
     
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     console.log('Opening image picker...');
     
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -61,8 +71,20 @@ export default function ImageUploader({
   };
 
   const removeImage = (index: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const newImages = images.filter((_, i) => i !== index);
     onImagesSelected(newImages);
+  };
+
+  const openPreview = (index: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setPreviewIndex(index);
+    setPreviewVisible(true);
+  };
+
+  const closePreview = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setPreviewVisible(false);
   };
 
 function LoadingTruck({ progressMessage }: { progressMessage: string }) {
@@ -207,7 +229,16 @@ function SuccessAnimation() {
         <View style={styles.imagesGrid}>
           {images.map((image, index) => (
             <View key={index} style={styles.previewContainer}>
-              <Image source={{ uri: image.uri }} style={styles.preview} resizeMode="contain" />
+              <TouchableOpacity 
+                style={styles.previewTouchable}
+                onPress={() => openPreview(index)}
+                activeOpacity={0.9}
+              >
+                <Image source={{ uri: image.uri }} style={styles.preview} resizeMode="contain" />
+                <View style={styles.previewBadge}>
+                  <Eye size={14} color={Colors.white} />
+                </View>
+              </TouchableOpacity>
               {!isProcessing && (
                 <TouchableOpacity 
                   style={styles.removeButton} 
@@ -237,7 +268,13 @@ function SuccessAnimation() {
           end={{ x: 1, y: 1 }}
           style={styles.startButton}
         >
-          <TouchableOpacity style={styles.startButtonInner} onPress={onStartExtraction}>
+          <TouchableOpacity 
+            style={styles.startButtonInner} 
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+              onStartExtraction();
+            }}
+          >
             <Text style={styles.startButtonText}>Start Extraction</Text>
           </TouchableOpacity>
         </LinearGradient>
@@ -271,6 +308,62 @@ function SuccessAnimation() {
           </LinearGradient>
         </TouchableOpacity>
       )}
+
+      <Modal
+        visible={previewVisible}
+        transparent={false}
+        animationType="fade"
+        onRequestClose={closePreview}
+      >
+        <View style={styles.previewModal}>
+          <View style={styles.previewHeader}>
+            <Text style={styles.previewTitle}>Image {previewIndex + 1} of {images.length}</Text>
+            <TouchableOpacity 
+              style={styles.closePreviewButton} 
+              onPress={closePreview}
+            >
+              <X size={24} color={Colors.white} />
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            data={images}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            initialScrollIndex={previewIndex}
+            getItemLayout={(_, index) => ({
+              length: SCREEN_WIDTH,
+              offset: SCREEN_WIDTH * index,
+              index,
+            })}
+            renderItem={({ item }) => (
+              <View style={styles.previewSlide}>
+                <Image 
+                  source={{ uri: item.uri }} 
+                  style={styles.previewImage} 
+                  resizeMode="contain" 
+                />
+              </View>
+            )}
+            keyExtractor={(_, index) => index.toString()}
+            onMomentumScrollEnd={(event) => {
+              const newIndex = Math.round(event.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+              setPreviewIndex(newIndex);
+            }}
+          />
+          <View style={styles.previewDots}>
+            {images.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.previewDot,
+                  index === previewIndex && styles.previewDotActive,
+                ]}
+              />
+            ))}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -513,5 +606,70 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '800' as const,
     color: Colors.black,
+  },
+  previewTouchable: {
+    width: '100%',
+    height: '100%',
+  },
+  previewBadge: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  previewModal: {
+    flex: 1,
+    backgroundColor: Colors.black,
+  },
+  previewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 20,
+    backgroundColor: 'rgba(0,0,0,0.9)',
+  },
+  previewTitle: {
+    fontSize: 18,
+    fontWeight: '700' as const,
+    color: Colors.white,
+  },
+  closePreviewButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  previewSlide: {
+    width: SCREEN_WIDTH,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  previewImage: {
+    width: SCREEN_WIDTH,
+    height: '100%',
+  },
+  previewDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 30,
+    gap: 8,
+  },
+  previewDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+  },
+  previewDotActive: {
+    backgroundColor: Colors.primary,
+    width: 24,
   },
 });

@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Truck, MapPin, Clock, Building2, Thermometer, User } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
+import { Truck, MapPin, Clock, Building2, Thermometer, User, Search, X } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { ProcessedShipment } from '@/types/shipment';
 
@@ -11,6 +12,29 @@ interface ShipmentTableProps {
 }
 
 export default function ShipmentTable({ shipments, onEditShipment }: ShipmentTableProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredShipments = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return shipments;
+    }
+    
+    const query = searchQuery.toLowerCase();
+    return shipments.filter(shipment => 
+      shipment.poNumber.toLowerCase().includes(query) ||
+      shipment.customer.toLowerCase().includes(query) ||
+      shipment.currentLocation.toLowerCase().includes(query) ||
+      shipment.destination.toLowerCase().includes(query) ||
+      shipment.status.toLowerCase().includes(query) ||
+      (shipment.reeferTemp && shipment.reeferTemp.toLowerCase().includes(query))
+    );
+  }, [shipments, searchQuery]);
+
+  const handleClearSearch = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSearchQuery('');
+  };
+
   if (shipments.length === 0) {
     return null;
   }
@@ -48,8 +72,29 @@ export default function ShipmentTable({ shipments, onEditShipment }: ShipmentTab
           end={{ x: 1, y: 1 }}
           style={styles.badge}
         >
-          <Text style={styles.badgeText}>{shipments.length} loads</Text>
+          <Text style={styles.badgeText}>{filteredShipments.length}/{shipments.length}</Text>
         </LinearGradient>
+      </View>
+
+      <View style={styles.searchContainer}>
+        <Search size={18} color={Colors.textSecondary} style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search by PO#, customer, location, status..."
+          placeholderTextColor={Colors.textSecondary}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity 
+            style={styles.clearSearchButton} 
+            onPress={handleClearSearch}
+          >
+            <X size={18} color={Colors.textSecondary} />
+          </TouchableOpacity>
+        )}
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -64,7 +109,7 @@ export default function ShipmentTable({ shipments, onEditShipment }: ShipmentTab
             <Text style={[styles.headerCell, styles.statusCell]}>Status</Text>
           </View>
 
-          {shipments.map((shipment, index) => (
+          {filteredShipments.map((shipment, index) => (
             <TouchableOpacity
               key={`${shipment.poNumber}-${index}`}
               style={[
@@ -143,9 +188,9 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 16,
     gap: 12,
   },
   headerIcon: {
@@ -170,6 +215,32 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '800' as const,
     color: Colors.black,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 20,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.text,
+    padding: 0,
+    margin: 0,
+  },
+  clearSearchButton: {
+    padding: 4,
+    marginLeft: 8,
   },
   table: {
     minWidth: 960,
