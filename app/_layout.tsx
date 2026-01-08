@@ -11,6 +11,26 @@ import { trpc, trpcClient } from "@/lib/trpc";
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function RootLayoutNav() {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    const prepare = async () => {
+      try {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        await SplashScreen.hideAsync();
+      } catch (e) {
+        console.warn('Splash screen hide error:', e);
+      } finally {
+        setIsReady(true);
+      }
+    };
+    prepare();
+  }, []);
+
+  if (!isReady) {
+    return null;
+  }
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
@@ -27,17 +47,6 @@ export default function RootLayout() {
       },
     },
   }));
-
-  useEffect(() => {
-    const prepare = async () => {
-      try {
-        await SplashScreen.hideAsync();
-      } catch (e) {
-        console.warn('Splash screen hide error:', e);
-      }
-    };
-    prepare();
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
