@@ -50,6 +50,14 @@ export default function EditShipmentModal({
     }
   }, [shipment]);
 
+  useEffect(() => {
+    if (destinationType === 'shipper' && /miles from (the )?receiver/i.test(eta)) {
+      setEta(eta.replace(/miles from (the )?receiver/i, 'miles from shipper'));
+    } else if (destinationType === 'receiver' && /miles from (the )?shipper/i.test(eta)) {
+      setEta(eta.replace(/miles from (the )?shipper/i, 'miles from receiver'));
+    }
+  }, [destinationType, eta]);
+
   const handleSave = () => {
     if (!shipment) return;
 
