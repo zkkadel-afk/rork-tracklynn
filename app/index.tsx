@@ -174,9 +174,9 @@ export default function HomeScreen() {
                     <Text style={styles.stepNumberText}>1</Text>
                   </ExpoLinearGradient>
                   <View style={styles.stepContent}>
-                    <Text style={styles.stepTitle}>Upload Screenshot</Text>
+                    <Text style={styles.stepTitle}>Change Board Configuration</Text>
                     <Text style={styles.stepDesc}>
-                      Take screenshots of your TMS showing shipment data with BOL, customer, status, and location columns (up to 3 images)
+                      Change your Mcleod board configurations to &quot;kadel&quot;
                     </Text>
                   </View>
                 </View>
@@ -190,7 +190,39 @@ export default function HomeScreen() {
                     <Text style={styles.stepNumberText}>2</Text>
                   </ExpoLinearGradient>
                   <View style={styles.stepContent}>
-                    <Text style={styles.stepTitle}>AI Extracts Data</Text>
+                    <Text style={styles.stepTitle}>Take Screenshot</Text>
+                    <Text style={styles.stepDesc}>
+                      Go to your snippet app and take a screenshot of your whole board
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.infoStep}>
+                  <ExpoLinearGradient
+                    colors={[Colors.primary, Colors.secondary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.stepNumber}
+                  >
+                    <Text style={styles.stepNumberText}>3</Text>
+                  </ExpoLinearGradient>
+                  <View style={styles.stepContent}>
+                    <Text style={styles.stepTitle}>Upload Screenshot</Text>
+                    <Text style={styles.stepDesc}>
+                      Upload the screenshot to the app (up to 3 images)
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.infoStep}>
+                  <ExpoLinearGradient
+                    colors={[Colors.primary, Colors.secondary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.stepNumber}
+                  >
+                    <Text style={styles.stepNumberText}>4</Text>
+                  </ExpoLinearGradient>
+                  <View style={styles.stepContent}>
+                    <Text style={styles.stepTitle}>AI Extraction</Text>
                     <Text style={styles.stepDesc}>
                       Our AI reads the screenshot and extracts PO#s, locations, and statuses automatically
                     </Text>
@@ -203,7 +235,7 @@ export default function HomeScreen() {
                     end={{ x: 1, y: 1 }}
                     style={styles.stepNumber}
                   >
-                    <Text style={styles.stepNumberText}>3</Text>
+                    <Text style={styles.stepNumberText}>5</Text>
                   </ExpoLinearGradient>
                   <View style={styles.stepContent}>
                     <Text style={styles.stepTitle}>Get Email Draft</Text>
