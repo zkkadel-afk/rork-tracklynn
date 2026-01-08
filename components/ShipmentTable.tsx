@@ -54,6 +54,10 @@ export default function ShipmentTable({ shipments, onEditShipment }: ShipmentTab
     return status;
   };
 
+  const isMissingData = (value: string | undefined) => {
+    return !value || value.trim() === '' || value === 'N/A';
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -126,7 +130,7 @@ export default function ShipmentTable({ shipments, onEditShipment }: ShipmentTab
                 <User size={14} color={Colors.textSecondary} />
                 <Text style={styles.cellText}>{shipment.customer}</Text>
               </View>
-              <View style={[styles.cell, styles.locationCell]}>
+              <View style={[styles.cell, styles.locationCell, isMissingData(shipment.currentLocation) && styles.missingDataCell]}>
                 <MapPin size={14} color={Colors.textSecondary} />
                 <Text style={styles.cellText}>
                   {shipment.currentLocation === 'N/A' ? 'Currently Unavailable' : shipment.currentLocation}
@@ -143,13 +147,13 @@ export default function ShipmentTable({ shipments, onEditShipment }: ShipmentTab
                   </Text>
                 </View>
               </View>
-              <View style={[styles.cell, styles.etaCell]}>
+              <View style={[styles.cell, styles.etaCell, isMissingData(shipment.eta) && styles.missingDataCell]}>
                 <Clock size={14} color={Colors.accent} />
                 <Text style={styles.etaText}>
                   {shipment.eta === 'N/A' ? 'Currently Unavailable' : shipment.eta}
                 </Text>
               </View>
-              <View style={[styles.cell, styles.tempCell]}>
+              <View style={[styles.cell, styles.tempCell, isMissingData(shipment.reeferTemp) && styles.missingDataCell]}>
                 <Thermometer size={14} color={Colors.textSecondary} />
                 <Text style={styles.cellText}>
                   {shipment.reeferTemp && shipment.reeferTemp.trim() ? shipment.reeferTemp : 'Dry'}
@@ -330,5 +334,12 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 12,
     fontWeight: '700' as const,
+  },
+  missingDataCell: {
+    backgroundColor: '#FFF9E6',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginHorizontal: -4,
   },
 });
