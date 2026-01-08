@@ -127,7 +127,7 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
 export async function batchZipToCityState(zipCodes: string[]): Promise<GeocodeResult[]> {
   console.log(`[Geocoding] Converting ${zipCodes.length} zip codes to city/state...`);
   
-  const chunkSize = 25;
+  const chunkSize = 100;
   const results: GeocodeResult[] = [];
   
   for (let i = 0; i < zipCodes.length; i += chunkSize) {
@@ -192,7 +192,7 @@ export async function getBatchDistances(
 ): Promise<DistanceMatrixResult[]> {
   console.log(`Fetching distances for ${routes.length} routes...`);
   
-  const chunkSize = 25;
+  const chunkSize = 100;
   const results: DistanceMatrixResult[] = [];
   
   for (let i = 0; i < routes.length; i += chunkSize) {
