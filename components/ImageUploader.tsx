@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Image,
-  ActivityIndicator,
+  Animated,
+  Easing,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { Upload, X } from 'lucide-react-native';
+import { Upload, X, Truck } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 
 interface ImageUploaderProps {
@@ -59,6 +60,38 @@ export default function ImageUploader({
     onImagesSelected(newImages);
   };
 
+function LoadingTruck() {
+  const spinValue = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const spinAnimation = Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 2000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    );
+    spinAnimation.start();
+
+    return () => spinAnimation.stop();
+  }, [spinValue]);
+
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  return (
+    <View style={styles.processingOverlay}>
+      <Animated.View style={{ transform: [{ rotate: spin }] }}>
+        <Truck size={48} color={Colors.primary} />
+      </Animated.View>
+      <Text style={styles.processingText}>Working On Your Updates</Text>
+    </View>
+  );
+}
+
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
@@ -108,12 +141,7 @@ export default function ImageUploader({
         </TouchableOpacity>
       )}
 
-      {isProcessing && (
-        <View style={styles.processingOverlay}>
-          <ActivityIndicator size="large" color={Colors.primary} />
-          <Text style={styles.processingText}>Extracting data from {images.length} screenshot{images.length > 1 ? 's' : ''}...</Text>
-        </View>
-      )}
+      {isProcessing && <LoadingTruck />}
 
       {images.length === 0 && (
         <TouchableOpacity style={styles.uploadArea} onPress={pickImage}>
