@@ -127,7 +127,7 @@ export async function zipToCityState(zipCode: string): Promise<GeocodeResult> {
 export async function batchZipToCityState(zipCodes: string[]): Promise<GeocodeResult[]> {
   console.log(`[Geocoding] Converting ${zipCodes.length} zip codes to city/state...`);
   
-  const chunkSize = 5;
+  const chunkSize = 25;
   const results: GeocodeResult[] = [];
   
   for (let i = 0; i < zipCodes.length; i += chunkSize) {
@@ -139,9 +139,6 @@ export async function batchZipToCityState(zipCodes: string[]): Promise<GeocodeRe
       })
     );
     results.push(...chunkResults);
-    if (i + chunkSize < zipCodes.length) {
-      await new Promise(resolve => setTimeout(resolve, 200));
-    }
   }
 
   const successCount = results.filter(r => r.success).length;
@@ -195,8 +192,7 @@ export async function getBatchDistances(
 ): Promise<DistanceMatrixResult[]> {
   console.log(`Fetching distances for ${routes.length} routes...`);
   
-  // Process in smaller chunks to avoid overwhelming the server/network
-  const chunkSize = 5;
+  const chunkSize = 25;
   const results: DistanceMatrixResult[] = [];
   
   for (let i = 0; i < routes.length; i += chunkSize) {
@@ -208,10 +204,6 @@ export async function getBatchDistances(
       })
     );
     results.push(...chunkResults);
-    // Small delay between chunks
-    if (i + chunkSize < routes.length) {
-       await new Promise(resolve => setTimeout(resolve, 200));
-    }
   }
 
   const successCount = results.filter(r => r.success).length;

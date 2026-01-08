@@ -53,7 +53,7 @@ export default function ImageUploader({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: false,
       allowsMultipleSelection: true,
-      quality: 0.8,
+      quality: 0.6,
       base64: true,
     });
 
