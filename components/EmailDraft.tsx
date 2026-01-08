@@ -27,19 +27,23 @@ export default function EmailDraft({ customerGroups }: EmailDraftProps) {
   const generateEmailBody = (group: CustomerGroup) => {
     let body = `Good afternoon,\n\nPlease see below for today's shipment updates:\n\n`;
 
-    body += `<table><tr><th>PO #</th><th>Current Location</th><th>Reefer Temp</th><th>ETA</th></tr>`;
+    const poWidth = 15;
+    const locationWidth = 30;
+    const etaWidth = 30;
+    const tempWidth = 12;
+
+    body += `${'PO #'.padEnd(poWidth)} | ${'Current Location'.padEnd(locationWidth)} | ${'ETA'.padEnd(etaWidth)} | ${'Reefer Temp'.padEnd(tempWidth)}\n`;
+    body += `${'-'.repeat(poWidth)}-+-${'-'.repeat(locationWidth)}-+-${'-'.repeat(etaWidth)}-+-${'-'.repeat(tempWidth)}\n`;
 
     group.shipments.forEach((shipment) => {
-      const po = shipment.poNumber;
-      const location = shipment.currentLocation === 'N/A' ? 'Currently Unavailable' : shipment.currentLocation;
-      const temp = shipment.reeferTemp && shipment.reeferTemp.trim() ? shipment.reeferTemp : 'Dry';
-      const eta = shipment.eta === 'N/A' ? 'Currently Unavailable' : shipment.eta;
-      body += `<tr><td>${po}</td><td>${location}</td><td>${temp}</td><td>${eta}</td></tr>`;
+      const po = shipment.poNumber.padEnd(poWidth);
+      const location = (shipment.currentLocation === 'N/A' ? 'Currently Unavailable' : shipment.currentLocation).padEnd(locationWidth);
+      const eta = (shipment.eta === 'N/A' ? 'Currently Unavailable' : shipment.eta).padEnd(etaWidth);
+      const temp = (shipment.reeferTemp && shipment.reeferTemp.trim() ? shipment.reeferTemp : 'Dry').padEnd(tempWidth);
+      body += `${po} | ${location} | ${eta} | ${temp}\n`;
     });
 
-    body += `</table>`;
-
-    body += `\n\nPlease let me know if you have any questions or need additional information.\n\n`;
+    body += `\nPlease let me know if you have any questions or need additional information.\n\n`;
     body += `Best regards`;
 
     return body;
