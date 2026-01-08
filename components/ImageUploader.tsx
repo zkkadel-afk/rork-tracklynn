@@ -275,7 +275,7 @@ function SuccessAnimation() {
               onStartExtraction();
             }}
           >
-            <Text style={styles.startButtonText}>Start Getting Updates at 2.5 Seconds Per Load</Text>
+            <Text style={styles.startButtonText}>Start Getting Updates In 2.5 Seconds/Load</Text>
           </TouchableOpacity>
         </LinearGradient>
       )}
