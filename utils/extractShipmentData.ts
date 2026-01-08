@@ -169,10 +169,10 @@ export async function processShipments(rawShipments: ShipmentData[]): Promise<Pr
       ? shipment.originZip
       : shipment.destZip;
     
-    // Use city/state format instead of zip code, fall back to zip if geocoding failed
-    let destination = zipToCityStateMap.get(destinationZip) || destinationZip;
+    // Use city/state format instead of zip code
+    let destination = zipToCityStateMap.get(destinationZip) || 'Currently Unavailable';
     if (!destination || destination.trim() === '' || destination.toUpperCase() === 'N/A') {
-      destination = destinationZip;
+      destination = 'Currently Unavailable';
     }
 
     const currentLocation = shipment.lastCallinCity || 'N/A';
