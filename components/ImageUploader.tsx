@@ -29,64 +29,6 @@ interface ImageUploaderProps {
   showSuccess: boolean;
 }
 
-export default function ImageUploader({
-  images,
-  onImagesSelected,
-  onClear,
-  isProcessing,
-  onStartExtraction,
-  progressMessage,
-  showSuccess,
-}: ImageUploaderProps) {
-  const [previewVisible, setPreviewVisible] = useState(false);
-  const [previewIndex, setPreviewIndex] = useState(0);
-
-  const pickImage = async () => {
-    if (images.length >= 3) {
-      return;
-    }
-    
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    console.log('Opening image picker...');
-    
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      allowsMultipleSelection: true,
-      quality: 0.6,
-      base64: true,
-    });
-
-    if (!result.canceled && result.assets.length > 0) {
-      console.log('Images selected:', result.assets.length);
-      const newImages = result.assets
-        .filter(asset => asset.base64)
-        .map(asset => ({ uri: asset.uri, base64: asset.base64! }))
-        .slice(0, 3 - images.length);
-      
-      if (newImages.length > 0) {
-        onImagesSelected([...images, ...newImages]);
-      }
-    }
-  };
-
-  const removeImage = (index: number) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    const newImages = images.filter((_, i) => i !== index);
-    onImagesSelected(newImages);
-  };
-
-  const openPreview = (index: number) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setPreviewIndex(index);
-    setPreviewVisible(true);
-  };
-
-  const closePreview = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setPreviewVisible(false);
-  };
-
 function LoadingTruck({ progressMessage }: { progressMessage: string }) {
   const spinValue = useRef(new Animated.Value(0)).current;
   const pulseValue = useRef(new Animated.Value(1)).current;
@@ -208,6 +150,64 @@ function SuccessAnimation() {
     </View>
   );
 }
+
+export default function ImageUploader({
+  images,
+  onImagesSelected,
+  onClear,
+  isProcessing,
+  onStartExtraction,
+  progressMessage,
+  showSuccess,
+}: ImageUploaderProps) {
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState(0);
+
+  const pickImage = async () => {
+    if (images.length >= 3) {
+      return;
+    }
+    
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    console.log('Opening image picker...');
+    
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      allowsMultipleSelection: true,
+      quality: 0.6,
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      console.log('Images selected:', result.assets.length);
+      const newImages = result.assets
+        .filter(asset => asset.base64)
+        .map(asset => ({ uri: asset.uri, base64: asset.base64! }))
+        .slice(0, 3 - images.length);
+      
+      if (newImages.length > 0) {
+        onImagesSelected([...images, ...newImages]);
+      }
+    }
+  };
+
+  const removeImage = (index: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    const newImages = images.filter((_, i) => i !== index);
+    onImagesSelected(newImages);
+  };
+
+  const openPreview = (index: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setPreviewIndex(index);
+    setPreviewVisible(true);
+  };
+
+  const closePreview = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setPreviewVisible(false);
+  };
 
   return (
     <View style={styles.container}>
