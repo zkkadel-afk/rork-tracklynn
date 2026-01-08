@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Mail, Copy, Check, Edit3 } from 'lucide-react-native';
 import * as Clipboard from 'expo-clipboard';
 import Colors from '@/constants/colors';
@@ -89,7 +90,14 @@ export default function EmailDraft({ customerGroups }: EmailDraftProps) {
         return (
           <View key={group.customer} style={styles.container}>
             <View style={styles.header}>
-              <Mail size={20} color={Colors.accent} />
+              <LinearGradient
+                colors={[Colors.primary, Colors.secondary]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.headerIcon}
+              >
+                <Mail size={20} color={Colors.black} strokeWidth={2.5} />
+              </LinearGradient>
               <Text style={styles.headerTitle}>Email Draft - {group.customer}</Text>
             </View>
 
@@ -129,22 +137,30 @@ export default function EmailDraft({ customerGroups }: EmailDraftProps) {
                 </ScrollView>
               </View>
 
-              <TouchableOpacity
-                style={[styles.copyButton, isCopied && styles.copyButtonSuccess]}
-                onPress={() => copyToClipboard(index, emailBody)}
-              >
-                {isCopied ? (
-                  <>
-                    <Check size={18} color={Colors.white} />
-                    <Text style={styles.copyButtonText}>Copied!</Text>
-                  </>
-                ) : (
-                  <>
-                    <Copy size={18} color={Colors.white} />
+              {isCopied ? (
+                <TouchableOpacity
+                  style={styles.copyButtonSuccess}
+                  onPress={() => copyToClipboard(index, emailBody)}
+                >
+                  <Check size={20} color={Colors.white} strokeWidth={2.5} />
+                  <Text style={styles.copyButtonTextSuccess}>Copied!</Text>
+                </TouchableOpacity>
+              ) : (
+                <LinearGradient
+                  colors={[Colors.primary, Colors.secondary]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.copyButton}
+                >
+                  <TouchableOpacity
+                    style={styles.copyButtonInner}
+                    onPress={() => copyToClipboard(index, emailBody)}
+                  >
+                    <Copy size={20} color={Colors.black} strokeWidth={2.5} />
                     <Text style={styles.copyButtonText}>Copy to Clipboard</Text>
-                  </>
-                )}
-              </TouchableOpacity>
+                  </TouchableOpacity>
+                </LinearGradient>
+              )}
             </View>
           </View>
         );
@@ -158,57 +174,72 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   container: {
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
+    backgroundColor: Colors.cardBg,
+    borderRadius: 20,
     overflow: 'hidden',
     marginBottom: 24,
+    borderWidth: 1,
+    borderColor: Colors.cardBorder,
+    shadowColor: Colors.shadow,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
-    gap: 10,
+    gap: 12,
+  },
+  headerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 16,
-    fontWeight: '600' as const,
+    fontSize: 18,
+    fontWeight: '800' as const,
     color: Colors.text,
   },
   content: {
-    padding: 16,
+    padding: 20,
   },
   fieldGroup: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   label: {
-    fontSize: 12,
-    fontWeight: '600' as const,
-    color: Colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 8,
+    fontSize: 11,
+    fontWeight: '800' as const,
+    color: Colors.secondary,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 1,
+    marginBottom: 10,
   },
   input: {
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     fontSize: 14,
     color: Colors.text,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
   },
   subjectText: {
-    fontSize: 14,
+    fontSize: 15,
     color: Colors.text,
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    fontWeight: '600' as const,
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
   },
   bodyHeader: {
     flexDirection: 'row',
@@ -226,34 +257,53 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
   },
   bodyContainer: {
-    backgroundColor: Colors.surfaceLight,
-    borderRadius: 8,
-    padding: 14,
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: 12,
+    padding: 16,
     maxHeight: 300,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
   },
   bodyText: {
     fontSize: 13,
     color: Colors.text,
     lineHeight: 20,
+    fontWeight: '500' as const,
   },
   copyButton: {
+    borderRadius: 14,
+    marginTop: 8,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  copyButtonInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    backgroundColor: Colors.primary,
-    paddingVertical: 14,
-    borderRadius: 8,
-    marginTop: 8,
+    gap: 10,
+    paddingVertical: 16,
   },
   copyButtonSuccess: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
     backgroundColor: Colors.success,
+    paddingVertical: 16,
+    borderRadius: 14,
+    marginTop: 8,
   },
   copyButtonText: {
-    fontSize: 14,
-    fontWeight: '600' as const,
+    fontSize: 16,
+    fontWeight: '800' as const,
+    color: Colors.black,
+  },
+  copyButtonTextSuccess: {
+    fontSize: 16,
+    fontWeight: '800' as const,
     color: Colors.white,
   },
 });

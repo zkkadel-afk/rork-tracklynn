@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
-import { Truck, RefreshCw, Zap } from 'lucide-react-native';
+import { Truck, RefreshCw, Sparkles } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import ImageUploader from '@/components/ImageUploader';
 import ShipmentTable from '@/components/ShipmentTable';
@@ -95,96 +96,127 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.wrapper}>
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.header}>
-            <View style={styles.logoContainer}>
-              <View style={styles.logoIcon}>
-                <Truck size={24} color={Colors.white} />
-              </View>
-              <View>
-                <Text style={styles.title}>Tracklynn</Text>
-                <Text style={styles.subtitle}>Automatic Customer Updates</Text>
-              </View>
-            </View>
-            <View style={styles.badge}>
-              <Zap size={12} color={Colors.warning} />
-              <Text style={styles.badgeText}>AI Powered</Text>
-            </View>
-          </View>
-
-          <View style={styles.card}>
-            <ImageUploader
-              images={images}
-              onImagesSelected={handleImagesSelected}
-              onClear={handleClear}
-              isProcessing={extractMutation.isPending}
-              onStartExtraction={handleStartExtraction}
-            />
-          </View>
-
-          {shipments.length > 0 && (
-            <>
-              <View style={styles.actionsRow}>
-                <TouchableOpacity
-                  style={styles.reprocessButton}
-                  onPress={handleReprocess}
-                  disabled={extractMutation.isPending}
+      <ExpoLinearGradient
+        colors={[Colors.backgroundGradientStart, Colors.backgroundGradientEnd]}
+        style={styles.gradient}
+      >
+        <SafeAreaView style={styles.container} edges={['top']}>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.header}>
+              <View style={styles.logoContainer}>
+                <ExpoLinearGradient
+                  colors={[Colors.primary, Colors.secondary]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.logoIcon}
                 >
-                  <RefreshCw size={16} color={Colors.primary} />
-                  <Text style={styles.reprocessText}>Re-extract Data</Text>
-                </TouchableOpacity>
-              </View>
-
-              <ShipmentTable shipments={shipments} />
-              <EmailDraft customerGroups={customerGroups} />
-            </>
-          )}
-
-          {images.length === 0 && (
-            <View style={styles.infoCard}>
-              <Text style={styles.infoTitle}>How it works</Text>
-              <View style={styles.infoStep}>
-                <View style={styles.stepNumber}>
-                  <Text style={styles.stepNumberText}>1</Text>
-                </View>
-                <View style={styles.stepContent}>
-                  <Text style={styles.stepTitle}>Upload Screenshot</Text>
-                  <Text style={styles.stepDesc}>
-                    Take screenshots of your TMS showing shipment data with BOL, customer, status, and location columns (up to 3 images)
-                  </Text>
+                  <Truck size={28} color={Colors.black} strokeWidth={2.5} />
+                </ExpoLinearGradient>
+                <View>
+                  <View style={styles.titleContainer}>
+                    <Text style={styles.titleOrange}>Track</Text>
+                    <Text style={styles.titleYellow}>lynn</Text>
+                  </View>
+                  <Text style={styles.subtitle}>Automatic Customer Updates</Text>
                 </View>
               </View>
-              <View style={styles.infoStep}>
-                <View style={styles.stepNumber}>
-                  <Text style={styles.stepNumberText}>2</Text>
-                </View>
-                <View style={styles.stepContent}>
-                  <Text style={styles.stepTitle}>AI Extracts Data</Text>
-                  <Text style={styles.stepDesc}>
-                    Our AI reads the screenshot and extracts PO#s, locations, and statuses automatically
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.infoStep}>
-                <View style={styles.stepNumber}>
-                  <Text style={styles.stepNumberText}>3</Text>
-                </View>
-                <View style={styles.stepContent}>
-                  <Text style={styles.stepTitle}>Get Email Draft</Text>
-                  <Text style={styles.stepDesc}>
-                    Copy the pre-formatted email update grouped by customer, ready to send
-                  </Text>
-                </View>
+              <View style={styles.badge}>
+                <Sparkles size={14} color={Colors.secondary} />
+                <Text style={styles.badgeText}>AI Powered</Text>
               </View>
             </View>
-          )}
-        </ScrollView>
-      </SafeAreaView>
+
+            <View style={styles.card}>
+              <ImageUploader
+                images={images}
+                onImagesSelected={handleImagesSelected}
+                onClear={handleClear}
+                isProcessing={extractMutation.isPending}
+                onStartExtraction={handleStartExtraction}
+              />
+            </View>
+
+            {shipments.length > 0 && (
+              <>
+                <View style={styles.actionsRow}>
+                  <TouchableOpacity
+                    style={styles.reprocessButton}
+                    onPress={handleReprocess}
+                    disabled={extractMutation.isPending}
+                  >
+                    <RefreshCw size={16} color={Colors.primary} />
+                    <Text style={styles.reprocessText}>Re-extract Data</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <ShipmentTable shipments={shipments} />
+                <EmailDraft customerGroups={customerGroups} />
+              </>
+            )}
+
+            {images.length === 0 && (
+              <View style={styles.infoCard}>
+                <View style={styles.infoHeader}>
+                  <Sparkles size={20} color={Colors.secondary} />
+                  <Text style={styles.infoTitle}>How it works</Text>
+                </View>
+                <View style={styles.infoStep}>
+                  <ExpoLinearGradient
+                    colors={[Colors.primary, Colors.secondary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.stepNumber}
+                  >
+                    <Text style={styles.stepNumberText}>1</Text>
+                  </ExpoLinearGradient>
+                  <View style={styles.stepContent}>
+                    <Text style={styles.stepTitle}>Upload Screenshot</Text>
+                    <Text style={styles.stepDesc}>
+                      Take screenshots of your TMS showing shipment data with BOL, customer, status, and location columns (up to 3 images)
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.infoStep}>
+                  <ExpoLinearGradient
+                    colors={[Colors.primary, Colors.secondary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.stepNumber}
+                  >
+                    <Text style={styles.stepNumberText}>2</Text>
+                  </ExpoLinearGradient>
+                  <View style={styles.stepContent}>
+                    <Text style={styles.stepTitle}>AI Extracts Data</Text>
+                    <Text style={styles.stepDesc}>
+                      Our AI reads the screenshot and extracts PO#s, locations, and statuses automatically
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.infoStep}>
+                  <ExpoLinearGradient
+                    colors={[Colors.primary, Colors.secondary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.stepNumber}
+                  >
+                    <Text style={styles.stepNumberText}>3</Text>
+                  </ExpoLinearGradient>
+                  <View style={styles.stepContent}>
+                    <Text style={styles.stepTitle}>Get Email Draft</Text>
+                    <Text style={styles.stepDesc}>
+                      Copy the pre-formatted email update grouped by customer, ready to send
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
+          </ScrollView>
+        </SafeAreaView>
+      </ExpoLinearGradient>
     </View>
   );
 }
@@ -194,6 +226,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  gradient: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },
@@ -201,58 +236,84 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 20,
+    padding: 24,
     paddingBottom: 40,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 32,
   },
   logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 16,
   },
   logoIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: Colors.primary,
+    width: 56,
+    height: 56,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    elevation: 8,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: '800' as const,
-    color: Colors.text,
-    letterSpacing: -0.5,
+  titleContainer: {
+    flexDirection: 'row',
+  },
+  titleOrange: {
+    fontSize: 28,
+    fontWeight: '900' as const,
+    color: Colors.primary,
+    letterSpacing: -1,
+  },
+  titleYellow: {
+    fontSize: 28,
+    fontWeight: '900' as const,
+    color: Colors.secondary,
+    letterSpacing: -1,
   },
   subtitle: {
-    fontSize: 13,
+    fontSize: 12,
     color: Colors.textSecondary,
-    marginTop: 1,
+    marginTop: 2,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase' as const,
   },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: Colors.warning + '20',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
+    gap: 6,
+    backgroundColor: Colors.cardBg,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: Colors.cardBorder,
   },
   badgeText: {
     fontSize: 11,
-    fontWeight: '600' as const,
-    color: Colors.warning,
+    fontWeight: '700' as const,
+    color: Colors.secondary,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.5,
   },
   card: {
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
+    backgroundColor: Colors.cardBg,
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: Colors.cardBorder,
+    shadowColor: Colors.shadow,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
   },
   actionsRow: {
     flexDirection: 'row',
@@ -262,59 +323,71 @@ const styles = StyleSheet.create({
   reprocessButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1,
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1.5,
     borderColor: Colors.primary,
+    backgroundColor: Colors.cardBg,
   },
   reprocessText: {
-    fontSize: 13,
-    fontWeight: '500' as const,
+    fontSize: 14,
+    fontWeight: '700' as const,
     color: Colors.primary,
   },
   infoCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: Colors.cardBg,
+    borderRadius: 20,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: Colors.cardBorder,
+  },
+  infoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 24,
   },
   infoTitle: {
-    fontSize: 16,
-    fontWeight: '700' as const,
+    fontSize: 18,
+    fontWeight: '800' as const,
     color: Colors.text,
-    marginBottom: 20,
   },
   infoStep: {
     flexDirection: 'row',
-    gap: 14,
-    marginBottom: 18,
+    gap: 16,
+    marginBottom: 20,
   },
   stepNumber: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: Colors.primary,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 4,
   },
   stepNumberText: {
-    fontSize: 14,
-    fontWeight: '700' as const,
-    color: Colors.white,
+    fontSize: 16,
+    fontWeight: '900' as const,
+    color: Colors.black,
   },
   stepContent: {
     flex: 1,
   },
   stepTitle: {
-    fontSize: 14,
-    fontWeight: '600' as const,
+    fontSize: 15,
+    fontWeight: '700' as const,
     color: Colors.text,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   stepDesc: {
     fontSize: 13,
     color: Colors.textSecondary,
-    lineHeight: 19,
+    lineHeight: 20,
   },
 });

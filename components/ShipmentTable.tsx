@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Truck, MapPin, Clock, Building2, Thermometer, User } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { ProcessedShipment } from '@/types/shipment';
@@ -31,11 +32,23 @@ export default function ShipmentTable({ shipments }: ShipmentTableProps) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Truck size={20} color={Colors.accent} />
+        <LinearGradient
+          colors={[Colors.primary, Colors.secondary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerIcon}
+        >
+          <Truck size={20} color={Colors.black} strokeWidth={2.5} />
+        </LinearGradient>
         <Text style={styles.headerTitle}>Shipment Updates</Text>
-        <View style={styles.badge}>
+        <LinearGradient
+          colors={[Colors.primary, Colors.secondary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.badge}
+        >
           <Text style={styles.badgeText}>{shipments.length} loads</Text>
-        </View>
+        </LinearGradient>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -113,55 +126,70 @@ export default function ShipmentTable({ shipments }: ShipmentTableProps) {
 const styles = StyleSheet.create({
   container: {
     marginBottom: 24,
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
+    backgroundColor: Colors.cardBg,
+    borderRadius: 20,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.cardBorder,
+    shadowColor: Colors.shadow,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
-    gap: 10,
+    gap: 12,
+  },
+  headerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 16,
-    fontWeight: '600' as const,
+    fontSize: 18,
+    fontWeight: '800' as const,
     color: Colors.text,
     flex: 1,
   },
   badge: {
-    backgroundColor: Colors.primary + '30',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 14,
   },
   badgeText: {
     fontSize: 12,
-    fontWeight: '600' as const,
-    color: Colors.primary,
+    fontWeight: '800' as const,
+    color: Colors.black,
   },
   table: {
     minWidth: 960,
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: Colors.tableHeader,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    backgroundColor: Colors.surfaceElevated,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
   headerCell: {
-    fontSize: 12,
-    fontWeight: '700' as const,
-    color: Colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    fontSize: 11,
+    fontWeight: '800' as const,
+    color: Colors.secondary,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 1,
   },
   tableRow: {
     flexDirection: 'row',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
@@ -193,38 +221,40 @@ const styles = StyleSheet.create({
   },
   poText: {
     fontSize: 14,
-    fontWeight: '700' as const,
-    color: Colors.accent,
+    fontWeight: '800' as const,
+    color: Colors.primary,
   },
   cellText: {
     fontSize: 13,
     color: Colors.text,
+    fontWeight: '500' as const,
   },
   destType: {
     fontSize: 11,
     color: Colors.textMuted,
     marginTop: 2,
+    fontWeight: '500' as const,
   },
   etaText: {
     fontSize: 13,
-    fontWeight: '500' as const,
+    fontWeight: '600' as const,
     color: Colors.text,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 14,
   },
   statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 7,
+    height: 7,
+    borderRadius: 4,
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '600' as const,
+    fontWeight: '700' as const,
   },
 });

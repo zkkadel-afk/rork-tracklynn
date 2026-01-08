@@ -8,6 +8,7 @@ import {
   Animated,
   Easing,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import { Upload, X, Truck } from 'lucide-react-native';
 import Colors from '@/constants/colors';
@@ -84,10 +85,20 @@ function LoadingTruck() {
 
   return (
     <View style={styles.processingOverlay}>
-      <Animated.View style={{ transform: [{ rotate: spin }] }}>
-        <Truck size={48} color={Colors.primary} />
-      </Animated.View>
+      <View style={styles.truckContainer}>
+        <Animated.View style={{ transform: [{ rotate: spin }] }}>
+          <LinearGradient
+            colors={[Colors.primary, Colors.secondary]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.truckGradient}
+          >
+            <Truck size={56} color={Colors.black} strokeWidth={2.5} />
+          </LinearGradient>
+        </Animated.View>
+      </View>
       <Text style={styles.processingText}>Working On Your Updates</Text>
+      <Text style={styles.processingSubtext}>This may take a moment...</Text>
     </View>
   );
 }
@@ -136,24 +147,43 @@ function LoadingTruck() {
       )}
 
       {images.length > 0 && !isProcessing && (
-        <TouchableOpacity style={styles.startButton} onPress={onStartExtraction}>
-          <Text style={styles.startButtonText}>Start</Text>
-        </TouchableOpacity>
+        <LinearGradient
+          colors={[Colors.primary, Colors.secondary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.startButton}
+        >
+          <TouchableOpacity style={styles.startButtonInner} onPress={onStartExtraction}>
+            <Text style={styles.startButtonText}>Start Extraction</Text>
+          </TouchableOpacity>
+        </LinearGradient>
       )}
 
       {isProcessing && <LoadingTruck />}
 
       {images.length === 0 && (
         <TouchableOpacity style={styles.uploadArea} onPress={pickImage}>
-          <View style={styles.uploadIconContainer}>
-            <Upload size={32} color={Colors.primary} />
-          </View>
+          <LinearGradient
+            colors={[Colors.primary, Colors.secondary]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.uploadIconContainer}
+          >
+            <Upload size={40} color={Colors.black} strokeWidth={2.5} />
+          </LinearGradient>
           <Text style={styles.uploadTitle}>Upload Screenshots</Text>
           <Text style={styles.uploadHint}>Select up to 3 images from your files</Text>
-          <View style={styles.uploadButton}>
-            <Upload size={18} color={Colors.white} />
-            <Text style={styles.uploadButtonText}>Choose Files</Text>
-          </View>
+          <LinearGradient
+            colors={[Colors.primary, Colors.secondary]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.uploadButton}
+          >
+            <View style={styles.uploadButtonInner}>
+              <Upload size={20} color={Colors.black} strokeWidth={2.5} />
+              <Text style={styles.uploadButtonText}>Choose Files</Text>
+            </View>
+          </LinearGradient>
         </TouchableOpacity>
       )}
     </View>
@@ -162,139 +192,152 @@ function LoadingTruck() {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 24,
+    marginBottom: 0,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700' as const,
+    fontSize: 20,
+    fontWeight: '800' as const,
     color: Colors.text,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   sectionSubtitle: {
     fontSize: 14,
     color: Colors.textSecondary,
+    lineHeight: 20,
   },
   clearAllButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: Colors.border,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    backgroundColor: Colors.surfaceLight,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   clearAllText: {
     fontSize: 13,
-    fontWeight: '600' as const,
+    fontWeight: '700' as const,
     color: Colors.textSecondary,
   },
   uploadArea: {
     borderWidth: 2,
     borderColor: Colors.primary,
     borderStyle: 'dashed',
-    borderRadius: 16,
-    padding: 32,
+    borderRadius: 20,
+    padding: 48,
     alignItems: 'center',
-    backgroundColor: Colors.primary + '08',
+    backgroundColor: Colors.accentGlow,
   },
   uploadIconContainer: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: Colors.primary + '15',
+    width: 88,
+    height: 88,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    elevation: 8,
   },
   uploadTitle: {
-    fontSize: 18,
-    fontWeight: '700' as const,
+    fontSize: 22,
+    fontWeight: '800' as const,
     color: Colors.text,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   uploadHint: {
     fontSize: 14,
     color: Colors.textSecondary,
-    marginBottom: 20,
+    marginBottom: 24,
   },
   uploadButton: {
+    borderRadius: 14,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  uploadButtonInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: Colors.primary,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 10,
+    gap: 10,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
   },
   uploadButtonText: {
-    fontSize: 15,
-    fontWeight: '700' as const,
-    color: Colors.white,
+    fontSize: 16,
+    fontWeight: '800' as const,
+    color: Colors.black,
   },
   imagesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: 16,
   },
   previewContainer: {
     position: 'relative',
     width: '48%',
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: Colors.surface,
-    borderWidth: 2,
-    borderColor: Colors.border,
+    backgroundColor: Colors.surfaceElevated,
+    borderWidth: 1.5,
+    borderColor: Colors.cardBorder,
   },
   preview: {
     width: '100%',
-    height: 140,
-    borderRadius: 10,
+    height: 160,
+    borderRadius: 14,
   },
   removeButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    top: 10,
+    right: 10,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0,0,0,0.8)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   imageNumber: {
     position: 'absolute',
-    bottom: 8,
-    left: 8,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    bottom: 10,
+    left: 10,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   imageNumberText: {
-    fontSize: 12,
-    fontWeight: '700' as const,
-    color: Colors.white,
+    fontSize: 13,
+    fontWeight: '800' as const,
+    color: Colors.black,
   },
   addMoreButton: {
     width: '48%',
-    height: 140,
-    borderRadius: 12,
+    height: 160,
+    borderRadius: 16,
     borderWidth: 2,
     borderColor: Colors.primary,
     borderStyle: 'dashed',
-    backgroundColor: Colors.primary + '10',
+    backgroundColor: Colors.accentGlow,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 10,
   },
   addMoreText: {
-    fontSize: 14,
-    fontWeight: '600' as const,
+    fontSize: 15,
+    fontWeight: '700' as const,
     color: Colors.primary,
   },
   processingOverlay: {
@@ -303,27 +346,54 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    backgroundColor: 'rgba(10, 10, 10, 0.95)',
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 20,
+  },
+  truckContainer: {
+    marginBottom: 8,
+  },
+  truckGradient: {
+    width: 96,
+    height: 96,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    elevation: 10,
   },
   processingText: {
-    marginTop: 12,
-    fontSize: 14,
+    marginTop: 16,
+    fontSize: 18,
     color: Colors.text,
-    fontWeight: '500' as const,
+    fontWeight: '700' as const,
+  },
+  processingSubtext: {
+    marginTop: 6,
+    fontSize: 13,
+    color: Colors.textSecondary,
   },
   startButton: {
-    marginTop: 16,
-    backgroundColor: Colors.primary,
-    paddingVertical: 16,
-    borderRadius: 12,
+    marginTop: 20,
+    borderRadius: 14,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  startButtonInner: {
+    paddingVertical: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
   startButtonText: {
-    fontSize: 16,
-    fontWeight: '700' as const,
-    color: Colors.white,
+    fontSize: 17,
+    fontWeight: '800' as const,
+    color: Colors.black,
   },
 });
